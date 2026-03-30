@@ -17,8 +17,19 @@ interface CoinPairProps {
   loan: string;
   loanSymbol: string;
 }
+interface VaultCardProps {
+  network: string;
+  token: string;
+  name: string;
+  curator: string;
+  liquidity: string;
+  apy: string;
+  slug: string;
+
+}
 
 export type {
     MarketCardProps,
-    CoinPairProps
+    CoinPairProps,
+    VaultCardProps
 }

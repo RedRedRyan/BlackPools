@@ -11,6 +11,10 @@ import Particles from '@/components/Particles';
 const Page = () => {
 
  useGSAP(() => {
+
+	gsap.from('#c-right-leaf', {
+		x: 100, y: 600
+	})
 	const parallaxTimeline = gsap.timeline({
 	 scrollTrigger: {
 		trigger: '#about',
@@ -24,9 +28,7 @@ const Page = () => {
 	 .from('#c-left-leaf', {
 		x: -100, y: 100
 	})
-	 .from('#c-right-leaf', {
-		x: 100, y: 100
-	})
+	
  })
  
  return (
@@ -46,12 +48,15 @@ const Page = () => {
 			pixelRatio={1}
 		/>
 		</div>
-	 <img src="/images/cocktail-left-leaf.png" alt="l-leaf" id="c-left-leaf" />
-	 <img src="/images/cocktail-right-leaf.png" alt="r-leaf" id="c-right-leaf" />
+	 <img src="/images/sawww.png" alt="l-leaf" id="c-left-leaf" />
+	 <img src="/images/safe.png" alt="r-leaf" id="c-right-leaf" className='size-160  xl:size-240'/>
 	 
 	 <div className="list">
 		<div className="popular">
-		 <h2>Most popular vaults</h2>
+			<div className='flex-col'>
+		 <h2 className='text-4xl text-green'>Vaults</h2>
+		 <h2>Lock and Earn </h2>
+		 </div>
 
 
 
@@ -62,6 +67,8 @@ const Page = () => {
 		 ))}  </ul>
 		 
 		</div>
+		
+
 		
 	 </div>
 	</section>

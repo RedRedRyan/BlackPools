@@ -209,7 +209,7 @@ nav {
     @apply absolute left-0 md:bottom-0 md:top-auto -top-20 md:w-fit w-1/3;
   }
   #c-right-leaf {
-    @apply absolute right-0 md:bottom-0 md:top-auto -top-20 md:w-fit w-1/3;
+    @apply absolute right-0  md:bottom-auto -bottom-20 md:w-fit w-1/3 ;
   }
 
   .list {
@@ -225,7 +225,7 @@ nav {
     }
 
     .vault-grid {
-      @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+      @apply grid grid-rows-1 md:grid-cols-3 lg:grid-cols-3 gap-6;
     }
 
     /* ── Shared list shell ── */
@@ -244,28 +244,14 @@ nav {
 
     
 
-    /* ── Vault info ── */
-    .vault-info {
-      @apply flex-1 min-w-0;
-
-      h3 {
-        @apply font-nunito text-base xl:text-lg text-green truncate;
-      }
-      .curator {
-        @apply text-xs text-white/50 mt-0.5;
-      }
-    }
-
-    /* ── Vault stats ── */
-    .vault-stats {
-      @apply flex gap-4 shrink-0;
-    }
+    
 
     
 
    
   }
 }
+
 #markets {
   @apply relative min-h-dvh w-full overflow-hidden;
 
@@ -282,7 +268,7 @@ nav {
     }
 
     .market-grid {
-      @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+      @apply grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-1;
     }
 
     /* ── Shared list shell ── */
@@ -349,17 +335,57 @@ nav {
     }
   }
   .badge {
-    @apply inline-block rounded-full cursor-pointer bg-green text-black px-4 py-2 text-2xl font-bold mb-8 hover:bg-white;
+    @apply inline-block rounded-full cursor-pointer bg-green text-black px-4 py-2 text-xl text-center font-bold mb-8 hover:bg-white w-48;
   }
   .alt-badge {
-    @apply inline-block rounded-full cursor-pointer bg-blue text-black px-4 py-2 text-xl font-bold mb-8  hover:bg-green;
+    @apply inline-block rounded-full cursor-pointer bg-blue text-green px-4 py-2 text-xl text-center font-bold mb-8  hover:bg-white w-48;
   }
 
+  /* ── Vault card ── */
+  #vault-card {
+    /* ── Vault info ── */
+    @apply flex flex-col gap-3 h-48 w-48;
+    .token{
+      @apply size-8 object-cover;
+    }
+    
+    
+      h3 {
+        @apply font-nunito text-lg xl:text-xl text-green truncate mt-3;
+      }
+      .curator {
+        @apply text-xs text-white/50 mt-0.5;
+      }
+    }
+    
+    /* ── Vault stats ── */
+    .vault-stats {
+      @apply flex-col gap-4 w-full;
+      .vault-network {
+        @apply size-5 ;
+      }
+      .stat {
+        @apply flex flex-row items-end ;
 
+        .label {
+          @apply text-sm uppercase tracking-wider text-white/40;
+        }
+        .value {
+          @apply text-sm font-semibold text-white text-center;
+        }
+        .value.apy {
+          @apply text-green;
+        }
+        
+      }
+      
+    
+  }
 
   .events {
     @apply grid md:grid-cols-3 gap-10 sm:grid-cols-2 grid-cols-1;
   }
+  
 
   #event-card {
     @apply flex flex-col gap-3;
@@ -384,6 +410,7 @@ nav {
       }
     }
   }
+
 
   #event {
     .header {
@@ -460,4 +487,23 @@ nav {
       }
     }
   }
+  /* ── Footer ── */
+  #footer {
+    @apply w-full py-10 bg-blue text-center text-sm text-gray-500;
+    h1 {
+        @apply text-3xl font-schibsted-grotesk mb-5 text-white;
+    }
+    .footer-grid {
+      @apply grid grid-cols-1 xl:grid-cols-6 gap-5 mb-5 md:px-0 px-5;
+
+      > div {
+          @apply rounded-3xl overflow-hidden h-auto relative;
+      }
+
+      img {
+          @apply object-cover w-full h-full;
+      }
+  }
+
+}
 }

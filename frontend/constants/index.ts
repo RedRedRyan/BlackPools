@@ -19,8 +19,8 @@ const navLinks = [
 
    const vaultLists = [
     {
-      network: "/images/coins/eth.png",
-      networkName: "Ethereum",
+      network: "/images/networks/eth.png",
+      token: "/images/coins/usdc.png",
       name: "USDC Core Vault",
       curator: "Gauntlet",
       liquidity: "$184.2M",
@@ -28,8 +28,8 @@ const navLinks = [
       slug: "vault-1"
     },
     {
-      network: "/images/coins/eth.png",
-      networkName: "Base",
+      network: "/images/networks/eth.png",
+      token: "/images/coins/usdc.png",
       name: "ETH Flagship Vault",
       curator: "MEV Capital",
       liquidity: "$97.5M",
@@ -37,8 +37,8 @@ const navLinks = [
       slug: "vault-2"
     },
     {
-      network: "/images/coins/arbitrum.png",
-      networkName: "Arbitrum",
+      network: "/images/networks/arb.jpeg",
+      token: "/images/networks/usdt.png",
       name: "WBTC Yield Vault",
       curator: "Re7 Labs",
       liquidity: "$61.0M",
@@ -47,7 +47,7 @@ const navLinks = [
     },
     {
       network: "/images/coins/eth.png",
-      networkName: "Ethereum",
+      token: "/images/coins/usdt.png",
       name: "DAI Steakhouse",
       curator: "Steakhouse",
       liquidity: "$42.3M",
@@ -58,7 +58,7 @@ const navLinks = [
   
    const marketsList = [
     {
-      network: "/images/coins/eth.png",
+      network: "/images/networks/eth.png",
       networkName: "Ethereum",
       collateral: "/images/coins/wbtc.png",
       collateralSymbol: "WBTC",
@@ -70,7 +70,7 @@ const navLinks = [
       slug: "market-1"
     },
     {
-      network: "/images/coins/base.png",
+      network: "/images/networks/base.png",
       networkName: "Base",
       collateral: "/images/coins/eth.png",
       collateralSymbol: "ETH",
@@ -82,7 +82,7 @@ const navLinks = [
         slug: "market-2"
     },
     {
-      network: "/images/coins/arbitrum.png",
+      network: "/images/networks/arb.jpeg",
       networkName: "Arbitrum",
       collateral: "/images/coins/steth.png",
       collateralSymbol: "stETH",
@@ -94,7 +94,7 @@ const navLinks = [
         slug: "market-3"
     },
     {
-      network: "/images/coins/eth.png",
+      network: "/images/networks/eth.png",
       networkName: "Ethereum",
       collateral: "/images/coins/dai.png",
       collateralSymbol: "DAI",
