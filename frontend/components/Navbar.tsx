@@ -5,6 +5,7 @@ import { useGSAP } from '@gsap/react'
 
 import { navLinks } from '@/constants';
 import Link from 'next/link';
+import ConnectButton from './ConnectButton';
 
 const Navbar = () => {
  useGSAP(() => {
@@ -35,8 +36,11 @@ const Navbar = () => {
 		 {navLinks.map((link) => (
 			<li key={link.id}>
 			 <Link href={`${link.id}`}>{link.title}</Link>
+
+			 
 			</li>
 		 ))}
+		 <ConnectButton />
 		</ul>
 	 </div>
 	</nav>
