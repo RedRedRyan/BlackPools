@@ -25,7 +25,8 @@ const metadata = {
 const modal = createAppKit({
   adapters: [wagmiAdapter],
   projectId,
-  networks,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  networks: networks as [any, ...any[]],
   defaultNetwork: networks[0],
   metadata: metadata,
   features: {
