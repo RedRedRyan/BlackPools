@@ -5,7 +5,8 @@ import "hardhat-gas-reporter";
 import "solidity-coverage";
 import dotenv from "dotenv";
 
-dotenv.config({ path: "../.env" });
+dotenv.config(); // Load from current directory
+dotenv.config({ path: "../.env" }); // Fallback to parent directory
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -44,7 +45,11 @@ const config: HardhatUserConfig = {
     },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      sepolia: process.env.ETHERSCAN_API_KEY || "",
+      arbitrumSepolia: process.env.ARB_ETHERSCAN_API_KEY || process.env.ETHERSCAN_API_KEY || "",
+      baseSepolia: process.env.BASE_ETHERSCAN_API_KEY || process.env.ETHERSCAN_API_KEY || "",
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === "true",
