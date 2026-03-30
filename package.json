@@ -3,11 +3,8 @@
   "version": "1.2.0",
   "description": "Confidential DeFi Lending Protocol on Fhenix CoFHE",
   "private": true,
-  "workspaces": [
-    "frontend"
-  ],
   "scripts": {
-    "install": "pnpm install -r",
+    "install:all": "pnpm install -r",
     "compile": "pnpm -C contracts compile",
     "test": "pnpm -C contracts test",
     "deploy": "pnpm -C contracts hardhat run scripts/deploy.ts",
