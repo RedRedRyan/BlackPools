@@ -164,7 +164,14 @@ describe("BlackPools", function () {
         user1.address
       );
 
-      await ethers.provider.send("evm_increaseTime", [3600]);
+      // Reset lastUpdate to current time to zero out setup time for the interest calculation
+      await blackPools.connect(owner).accrueInterest(
+        params,
+        await encryptUint128(owner, 0n),
+        0n
+      );
+      
+      await ethers.provider.send("evm_increaseTime", [36]);
       await ethers.provider.send("evm_mine", []);
 
       await expect(

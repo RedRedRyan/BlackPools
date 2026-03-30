@@ -27,11 +27,24 @@ const config: HardhatUserConfig = {
     localhost: {
       url: "http://127.0.0.1:8545",
     },
+    sepolia: {
+      url: process.env.SEPOLIA_RPC_URL || "https://rpc.ankr.com/eth_sepolia",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 11155111,
+    },
     arbitrumSepolia: {
       url: process.env.ARBITRUM_SEPOLIA_RPC_URL || "https://sepolia-rollup.arbitrum.io/rpc",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 421614,
     },
+    baseSepolia: {
+      url: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 84532,
+    },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS === "true",
@@ -45,6 +58,18 @@ const config: HardhatUserConfig = {
   },
 };
 
+import { task } from "hardhat/config";
+
+task("deploy:eth", "Deploy to Ethereum Sepolia").setAction(async (_, { run }) => {
+  await run("run", { script: "tasks/deploy-vault.ts", network: "sepolia" });
+});
+
+task("deploy:arb", "Deploy to Arbitrum Sepolia").setAction(async (_, { run }) => {
+  await run("run", { script: "tasks/deploy-vault.ts", network: "arbitrumSepolia" });
+});
+
+task("deploy:base", "Deploy to Base Sepolia").setAction(async (_, { run }) => {
+  await run("run", { script: "tasks/deploy-vault.ts", network: "baseSepolia" });
+});
+
 export default config;
-
-

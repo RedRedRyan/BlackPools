@@ -41,8 +41,8 @@ library FixedTMCommon {
     uint256 private constant HASH_MASK_FOR_METADATA    = type(uint256).max - type(uint16).max;
     uint256 private constant SECURITY_ZONE_MASK        = type(uint8).max;
     uint256 private constant UINT_TYPE_MASK            = (type(uint8).max >> 1);
-    uint256 private constant TRIVIALLY_ENCRYPTED_MASK  = (type(uint8).max - (type(uint8).max >> 1)) << 8; // 0x8000
-    uint256 private constant SHIFTED_TYPE_MASK         = (type(uint8).max >> 1) << 8;                     // 0x7f00
+    uint256 private constant TRIVIALLY_ENCRYPTED_MASK  = uint256(type(uint8).max - (type(uint8).max >> 1)) << 8; // 0x8000
+    uint256 private constant SHIFTED_TYPE_MASK         = uint256(type(uint8).max >> 1) << 8;                     // 0x7f00
 
     function uint256ToBytes32(uint256 value) internal pure returns (bytes memory) {
         bytes memory b = new bytes(32);
@@ -90,7 +90,6 @@ library FixedTMCommon {
             uint256(keccak256(combined)), securityZone,
             getReturnType(functionId, ctType), isTriviallyEncrypted
         );
-        console.log("Calc key", ctHash, "trivially?", isTriviallyEncrypted);
         return ctHash;
     }
 
@@ -184,8 +183,6 @@ contract FixedTaskManager is ITaskManager, MockCoFHE {
     }
 
     function checkAllowed(uint256 ctHash) internal view {
-        console.log("checkAllowed", ctHash, "isTriviallyEncryptedFromHash",
-            FixedTMCommon.isTriviallyEncryptedFromHash(ctHash));
         if (!FixedTMCommon.isTriviallyEncryptedFromHash(ctHash))
             if (!acl.isAllowed(ctHash, msg.sender)) revert ACLNotAllowed(ctHash, msg.sender);
     }
