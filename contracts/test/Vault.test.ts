@@ -4,8 +4,14 @@ import { Encryptable, cofhejs } from "cofhejs/node";
 import { cofhejs_initializeWithHardhatSigner } from "cofhe-hardhat-plugin/dist/src/networkUtils";
 import { mock_expectPlaintext } from "cofhe-hardhat-plugin/dist/src/mockUtils";
 import { BlackPools, TestERC20, TestPriceOracle } from "../typechain-types";
+import { deployFixedMocks } from "./helpers/deployFixedMock";
 
 describe("BlackPools", function () {
+  before(async function () {
+    await deployFixedMocks();
+  });
+
+
   let blackPools: BlackPools;
   let usdc: TestERC20;
   let weth: TestERC20;

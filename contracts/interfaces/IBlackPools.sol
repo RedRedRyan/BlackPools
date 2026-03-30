@@ -15,26 +15,29 @@ interface IBlackPools {
     }
 
     struct Market {
-        euint128 totalSupplyAssets;
-        euint128 totalBorrowAssets;
-        euint128 totalSupplyShares;
-        euint128 totalBorrowShares;
-        uint256  lastUpdate;
-        uint128  fee;
+        euint128 totalSupplyAssets;  // encrypted
+        euint128 totalBorrowAssets;  // encrypted
+        euint128 totalSupplyShares;  // encrypted
+        euint128 totalBorrowShares;  // encrypted
+        uint256  lastUpdate;         // plaintext
+        uint128  fee;                // plaintext fee in bps
+        uint256  plainTotalBorrow;   // plaintext mirror used for fee calculation
     }
 
     struct Position {
-        euint128 supplyShares;
-        euint128 borrowShares;
-        euint128 collateral;
+        euint128 supplyShares;    // encrypted
+        euint128 borrowShares;    // encrypted
+        euint128 collateral;      // encrypted
+        uint256  plainCollateral; // plaintext mirror for oracle health check
+        uint256  plainBorrow;     // plaintext mirror for oracle health check
     }
 
     // ── Events ────────────────────────────────────────────────────────────────
 
     event MarketCreated(bytes32 indexed marketId, MarketParams params);
-    event Supplied(bytes32 indexed marketId, address indexed user, address indexed onBehalfOf);
+    event Supplied(bytes32 indexed marketId, address indexed caller, address indexed onBehalfOf);
     event Withdrawn(bytes32 indexed marketId, address indexed caller, address indexed receiver);
-    event CollateralSupplied(bytes32 indexed marketId, address indexed user, uint256 amount);
+    event CollateralSupplied(bytes32 indexed marketId, address indexed caller, uint256 amount);
     event CollateralWithdrawn(bytes32 indexed marketId, address indexed caller, address indexed receiver);
     event Borrowed(bytes32 indexed marketId, address indexed user, address indexed receiver, uint256 amount);
     event Repaid(bytes32 indexed marketId, address indexed user, uint256 amount);
@@ -55,7 +58,7 @@ interface IBlackPools {
     function withdraw(
         MarketParams calldata params,
         InEuint128   calldata encryptedShares,
-        uint256               plainAssets,
+        uint256               plainShares,
         address               user,
         address               receiver
     ) external;
@@ -90,9 +93,13 @@ interface IBlackPools {
         address               user
     ) external;
 
+    /// @param encryptedRate  Encrypted per-second interest rate.
+    /// @param plainRate      Plaintext rate in ray units (1e27 = 100%/s).
+    ///                       Needed for the fee split without FHE division.
     function accrueInterest(
         MarketParams calldata params,
-        InEuint128   calldata encryptedRate
+        InEuint128   calldata encryptedRate,
+        uint256               plainRate
     ) external;
 
     function liquidate(

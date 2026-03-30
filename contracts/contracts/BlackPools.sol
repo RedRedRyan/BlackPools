@@ -3,100 +3,106 @@ pragma solidity ^0.8.24;
 
 import { IERC20, SafeERC20 }           from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ReentrancyGuard }             from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import { euint128, ebool, InEuint128 } from "@fhenixprotocol/cofhe-contracts/FHE.sol";
-import { FHE }                         from "@fhenixprotocol/cofhe-contracts/FHE.sol";
+import { FHE ,euint128, ebool, InEuint128 } from "@fhenixprotocol/cofhe-contracts/FHE.sol";
 
-import { IBlackPools } from "../interfaces/IBlackPools.sol";
-import { MarketLib }   from "../libraries/MarketLib.sol";
+import { IBlackPools }  from "../interfaces/IBlackPools.sol";
+import { IPriceOracle } from "../interfaces/IPriceOracle.sol";
+import { MarketLib }    from "../libraries/MarketLib.sol";
 
 contract BlackPools is IBlackPools, ReentrancyGuard {
     using SafeERC20 for IERC20;
     using MarketLib for IBlackPools.MarketParams;
 
+    // Protocol fee: 10% of gross interest goes to protocol (1000 / 10000)
+    uint256 private constant FEE_BPS = 1000;
+
     mapping(bytes32 => Market)                       private _markets;
     mapping(bytes32 => mapping(address => Position)) private _positions;
     mapping(bytes32 => MarketParams)                 private _marketParams;
 
-    constructor() {}
+    // ── FHE helpers ──────────────────────────────────────────────────────────
 
-    // ── Internal helpers ─────────────────────────────────────────────────────
-
-    /// @dev Derive an encrypted zero from a valid encrypted uint128 handle.
-    ///      The mock TaskManager mis-tags FHE.asEuint128(0), so we build zero
-    ///      from a typed seed instead.
-    function _initZeroFrom(euint128 seed) internal returns (euint128 z) {
-        z = FHE.sub(seed, seed);
+    /// @dev FHE.asEuint128(0) alone leaves the handle locked — nobody can
+    ///      use it in a subsequent FHE operation until FHE.allowThis() is
+    ///      called. _initZero() enforces that pairing unconditionally.
+    function _initZero() internal returns (euint128 z) {
+        z = FHE.asEuint128(0);
         FHE.allowThis(z);
     }
 
-    /// @dev Grant this contract and msg.sender access, plus an optional
-    ///      third address. Call after every euint128 write.
-    function _allow(euint128 value, address user) internal {
-        FHE.allowThis(value);
-        FHE.allowSender(value);
+    /// @dev Call after every euint128 write.
+    function _allow(euint128 v, address user) internal {
+        FHE.allowThis(v);
+        FHE.allowSender(v);
         if (user != address(0) && user != msg.sender) {
-            FHE.allow(value, user);
+            FHE.allow(v, user);
         }
     }
 
-    /// @dev Initialise market totals from a typed encrypted seed before the
-    ///      first FHE operation touches them.
-    function _initMarketIfNeeded(bytes32 marketId, euint128 seed) internal {
-        Market storage m = _markets[marketId];
-        if (euint128.unwrap(m.totalSupplyAssets) == 0) {
-            m.totalSupplyAssets = _initZeroFrom(seed);
-            _allow(m.totalSupplyAssets, address(0));
-        }
-        if (euint128.unwrap(m.totalBorrowAssets) == 0) {
-            m.totalBorrowAssets = _initZeroFrom(seed);
-            _allow(m.totalBorrowAssets, address(0));
-        }
-        if (euint128.unwrap(m.totalSupplyShares) == 0) {
-            m.totalSupplyShares = _initZeroFrom(seed);
-            _allow(m.totalSupplyShares, address(0));
-        }
-        if (euint128.unwrap(m.totalBorrowShares) == 0) {
-            m.totalBorrowShares = _initZeroFrom(seed);
-            _allow(m.totalBorrowShares, address(0));
-        }
-    }
-
-    /// @dev New users have storage-zero euint128 fields (not valid FHE
-    ///      handles). Initialise them before the first FHE operation.
-    function _initPositionIfNeeded(bytes32 marketId, address user, euint128 seed) internal {
-        Position storage p = _positions[marketId][user];
+    /// @dev Storage-zero euint128 is not a valid FHE handle.
+    ///      Initialise every position field before the first FHE operation.
+    function _initPositionIfNeeded(bytes32 mid, address user) internal {
+        Position storage p = _positions[mid][user];
         if (euint128.unwrap(p.supplyShares) == 0) {
-            p.supplyShares = _initZeroFrom(seed);
-            _allow(p.supplyShares, user);
+            p.supplyShares = _initZero();
+            FHE.allow(p.supplyShares, user);
         }
         if (euint128.unwrap(p.borrowShares) == 0) {
-            p.borrowShares = _initZeroFrom(seed);
-            _allow(p.borrowShares, user);
+            p.borrowShares = _initZero();
+            FHE.allow(p.borrowShares, user);
         }
         if (euint128.unwrap(p.collateral) == 0) {
-            p.collateral = _initZeroFrom(seed);
-            _allow(p.collateral, user);
+            p.collateral = _initZero();
+            FHE.allow(p.collateral, user);
         }
     }
 
-    // ── Market creation ──────────────────────────────────────────────────────
+    // ── Oracle health check (plaintext) ──────────────────────────────────────
+
+    /// @dev Read the oracle price and compute the collateral value in loan
+    ///      token units. Both collateralAmount and borrowAmount are passed
+    ///      in plaintext (from the plainXxx parameters) so the health check
+    ///      can happen synchronously on-chain without FHE decryption.
+    ///
+    ///      Healthy if:  collateralValue * lltv / 10000  >  borrowAmount
+    ///      where:       collateralValue = collateralAmount * price / 10^oracleDecimals
+    function _isHealthy(
+        MarketParams memory p,
+        uint256 plainCollateral,
+        uint256 plainBorrow
+    ) internal view returns (bool) {
+        if (plainBorrow == 0) return true;
+        if (plainCollateral == 0) return false;
+
+        (, int256 answer,,,) = IPriceOracle(p.oracle).latestRoundData();
+        require(answer > 0, "BlackPools: bad oracle price");
+
+        uint8  oracleDecimals  = IPriceOracle(p.oracle).decimals();
+        uint256 collateralValue = (plainCollateral * uint256(answer)) / (10 ** oracleDecimals);
+        uint256 maxBorrow       = (collateralValue * p.lltv) / 10_000;
+
+        return maxBorrow >= plainBorrow;
+    }
+
+    // ── createMarket ─────────────────────────────────────────────────────────
 
     function createMarket(MarketParams calldata params) external nonReentrant {
         params.validate();
-        bytes32 marketId = params.id();
-        require(!MarketLib.isCreated(_markets[marketId]), "BlackPools: market exists");
+        bytes32 mid = params.id();
+        require(!MarketLib.isCreated(_markets[mid]), "BlackPools: market exists");
 
-        // Encrypted totals are lazily initialised from the first typed euint128
-        // that touches the market. This avoids the mock TaskManager bug around
-        // FHE.asEuint128(0) metadata.
-        _markets[marketId].lastUpdate        = block.timestamp;
-        _markets[marketId].fee               = 0;
-        _marketParams[marketId]              = params;
+        _markets[mid].totalSupplyAssets = _initZero();
+        _markets[mid].totalBorrowAssets = _initZero();
+        _markets[mid].totalSupplyShares = _initZero();
+        _markets[mid].totalBorrowShares = _initZero();
+        _markets[mid].lastUpdate        = block.timestamp;
+        _markets[mid].fee               = uint128(FEE_BPS);
+        _marketParams[mid]              = params;
 
-        emit MarketCreated(marketId, params);
+        emit MarketCreated(mid, params);
     }
 
-    // ── Supply ───────────────────────────────────────────────────────────────
+    // ── supply ───────────────────────────────────────────────────────────────
 
     function supply(
         MarketParams calldata params,
@@ -104,8 +110,8 @@ contract BlackPools is IBlackPools, ReentrancyGuard {
         uint256               plainAssets,
         address               onBehalfOf
     ) external nonReentrant {
-        bytes32 marketId = params.id();
-        require(MarketLib.isCreated(_markets[marketId]), "BlackPools: market not found");
+        bytes32 mid = params.id();
+        require(MarketLib.isCreated(_markets[mid]), "BlackPools: market not found");
 
         IERC20(params.loanToken).safeTransferFrom(msg.sender, address(this), plainAssets);
 
@@ -115,34 +121,31 @@ contract BlackPools is IBlackPools, ReentrancyGuard {
 
         euint128 shares = assets; // 1:1 for testnet
 
-        _initMarketIfNeeded(marketId, assets);
-        _initPositionIfNeeded(marketId, onBehalfOf, assets);
+        _initPositionIfNeeded(mid, onBehalfOf);
 
-        _markets[marketId].totalSupplyAssets =
-            FHE.add(_markets[marketId].totalSupplyAssets, assets);
-        _markets[marketId].totalSupplyShares =
-            FHE.add(_markets[marketId].totalSupplyShares, shares);
-        _positions[marketId][onBehalfOf].supplyShares =
-            FHE.add(_positions[marketId][onBehalfOf].supplyShares, shares);
+        _markets[mid].totalSupplyAssets = FHE.add(_markets[mid].totalSupplyAssets, assets);
+        _markets[mid].totalSupplyShares = FHE.add(_markets[mid].totalSupplyShares, shares);
+        _positions[mid][onBehalfOf].supplyShares =
+            FHE.add(_positions[mid][onBehalfOf].supplyShares, shares);
 
-        _allow(_markets[marketId].totalSupplyAssets, address(0));
-        _allow(_markets[marketId].totalSupplyShares, address(0));
-        _allow(_positions[marketId][onBehalfOf].supplyShares, onBehalfOf);
+        _allow(_markets[mid].totalSupplyAssets, address(0));
+        _allow(_markets[mid].totalSupplyShares, address(0));
+        _allow(_positions[mid][onBehalfOf].supplyShares, onBehalfOf);
 
-        emit Supplied(marketId, msg.sender, onBehalfOf);
+        emit Supplied(mid, msg.sender, onBehalfOf);
     }
 
-    // ── Withdraw ─────────────────────────────────────────────────────────────
+    // ── withdraw ─────────────────────────────────────────────────────────────
 
     function withdraw(
         MarketParams calldata params,
         InEuint128   calldata encryptedShares,
-        uint256               plainAssets,
+        uint256               plainShares,
         address               user,
         address               receiver
     ) external nonReentrant {
-        bytes32 marketId = params.id();
-        require(MarketLib.isCreated(_markets[marketId]), "BlackPools: market not found");
+        bytes32 mid = params.id();
+        require(MarketLib.isCreated(_markets[mid]), "BlackPools: market not found");
         require(user == msg.sender, "BlackPools: not authorized");
 
         euint128 shares = FHE.asEuint128(encryptedShares);
@@ -151,19 +154,19 @@ contract BlackPools is IBlackPools, ReentrancyGuard {
 
         euint128 assets = shares; // 1:1 for testnet
 
-        _positions[marketId][user].supplyShares =
-            FHE.sub(_positions[marketId][user].supplyShares, shares);
-        _markets[marketId].totalSupplyShares =
-            FHE.sub(_markets[marketId].totalSupplyShares, shares);
-        _markets[marketId].totalSupplyAssets =
-            FHE.sub(_markets[marketId].totalSupplyAssets, assets);
+        _positions[mid][user].supplyShares =
+            FHE.sub(_positions[mid][user].supplyShares, shares);
+        _markets[mid].totalSupplyShares =
+            FHE.sub(_markets[mid].totalSupplyShares, shares);
+        _markets[mid].totalSupplyAssets =
+            FHE.sub(_markets[mid].totalSupplyAssets, assets);
 
-        _allow(_positions[marketId][user].supplyShares, user);
-        _allow(_markets[marketId].totalSupplyShares, address(0));
-        _allow(_markets[marketId].totalSupplyAssets, address(0));
+        _allow(_positions[mid][user].supplyShares, user);
+        _allow(_markets[mid].totalSupplyShares, address(0));
+        _allow(_markets[mid].totalSupplyAssets, address(0));
 
-        IERC20(params.loanToken).safeTransfer(receiver, plainAssets);
-        emit Withdrawn(marketId, msg.sender, receiver);
+        IERC20(params.loanToken).safeTransfer(receiver, plainShares);
+        emit Withdrawn(mid, msg.sender, receiver);
     }
 
     // ── supplyCollateral ─────────────────────────────────────────────────────
@@ -174,22 +177,25 @@ contract BlackPools is IBlackPools, ReentrancyGuard {
         uint256               plainCollateral,
         address               user
     ) external nonReentrant {
-        bytes32 marketId = params.id();
-        require(MarketLib.isCreated(_markets[marketId]), "BlackPools: market not found");
+        bytes32 mid = params.id();
+        require(MarketLib.isCreated(_markets[mid]), "BlackPools: market not found");
 
         IERC20(params.collateralToken).safeTransferFrom(msg.sender, address(this), plainCollateral);
 
-        euint128 collateral = FHE.asEuint128(encryptedCollateral);
-        FHE.allowThis(collateral);
-        FHE.allowSender(collateral);
+        euint128 col = FHE.asEuint128(encryptedCollateral);
+        FHE.allowThis(col);
+        FHE.allowSender(col);
 
-        _initPositionIfNeeded(marketId, user, collateral);
+        _initPositionIfNeeded(mid, user);
 
-        _positions[marketId][user].collateral =
-            FHE.add(_positions[marketId][user].collateral, collateral);
-        _allow(_positions[marketId][user].collateral, user);
+        _positions[mid][user].collateral =
+            FHE.add(_positions[mid][user].collateral, col);
+        _allow(_positions[mid][user].collateral, user);
 
-        emit CollateralSupplied(marketId, msg.sender, plainCollateral);
+        // Track plaintext collateral for oracle-based health checks
+        _positions[mid][user].plainCollateral += plainCollateral;
+
+        emit CollateralSupplied(mid, msg.sender, plainCollateral);
     }
 
     // ── withdrawCollateral ───────────────────────────────────────────────────
@@ -201,20 +207,27 @@ contract BlackPools is IBlackPools, ReentrancyGuard {
         address               onBehalfOf,
         address               receiver
     ) external nonReentrant {
-        bytes32 marketId = params.id();
-        require(MarketLib.isCreated(_markets[marketId]), "BlackPools: market not found");
+        bytes32 mid = params.id();
+        require(MarketLib.isCreated(_markets[mid]), "BlackPools: market not found");
         require(onBehalfOf == msg.sender, "BlackPools: not authorized");
+
+        uint256 newCollateral = _positions[mid][onBehalfOf].plainCollateral - plainAssets;
+        require(
+            _isHealthy(params, newCollateral, _positions[mid][onBehalfOf].plainBorrow),
+            "BlackPools: insufficient collateral"
+        );
 
         euint128 assets = FHE.asEuint128(encryptedAssets);
         FHE.allowThis(assets);
         FHE.allowSender(assets);
 
-        _positions[marketId][onBehalfOf].collateral =
-            FHE.sub(_positions[marketId][onBehalfOf].collateral, assets);
-        _allow(_positions[marketId][onBehalfOf].collateral, onBehalfOf);
+        _positions[mid][onBehalfOf].collateral =
+            FHE.sub(_positions[mid][onBehalfOf].collateral, assets);
+        _allow(_positions[mid][onBehalfOf].collateral, onBehalfOf);
+        _positions[mid][onBehalfOf].plainCollateral = newCollateral;
 
         IERC20(params.collateralToken).safeTransfer(receiver, plainAssets);
-        emit CollateralWithdrawn(marketId, msg.sender, receiver);
+        emit CollateralWithdrawn(mid, msg.sender, receiver);
     }
 
     // ── borrow ───────────────────────────────────────────────────────────────
@@ -226,45 +239,40 @@ contract BlackPools is IBlackPools, ReentrancyGuard {
         address               user,
         address               receiver
     ) external nonReentrant {
-        bytes32 marketId = params.id();
-        require(MarketLib.isCreated(_markets[marketId]), "BlackPools: market not found");
+        bytes32 mid = params.id();
+        require(MarketLib.isCreated(_markets[mid]), "BlackPools: market not found");
         require(user == msg.sender, "BlackPools: not authorized");
+
+        uint256 newBorrow = _positions[mid][user].plainBorrow + plainAmount;
+        require(
+            _isHealthy(params, _positions[mid][user].plainCollateral, newBorrow),
+            "BlackPools: insufficient collateral"
+        );
 
         euint128 borrowAmount = FHE.asEuint128(encryptedBorrowAmount);
         FHE.allowThis(borrowAmount);
         FHE.allowSender(borrowAmount);
 
-        _initMarketIfNeeded(marketId, borrowAmount);
-        _initPositionIfNeeded(marketId, user, borrowAmount);
+        _initPositionIfNeeded(mid, user);
 
-        euint128 newBorrowShares = FHE.add(_positions[marketId][user].borrowShares, borrowAmount);
-        FHE.allowThis(newBorrowShares);
-        euint128 lltvEnc = FHE.asEuint128(uint128(params.lltv));
-        FHE.allowThis(lltvEnc);
-        euint128 required = FHE.mul(newBorrowShares, lltvEnc);
-        FHE.allowThis(required);
-        ebool isSafe = FHE.gte(_positions[marketId][user].collateral, required);
-        FHE.allowThis(isSafe);
-        euint128 zero = _initZeroFrom(borrowAmount);
-        euint128 sharesToAdd = FHE.select(isSafe, borrowAmount, zero);
-        FHE.allowThis(sharesToAdd);
+        _markets[mid].totalBorrowShares =
+            FHE.add(_markets[mid].totalBorrowShares, borrowAmount);
+        _markets[mid].totalBorrowAssets =
+            FHE.add(_markets[mid].totalBorrowAssets, borrowAmount);
+        _positions[mid][user].borrowShares =
+            FHE.add(_positions[mid][user].borrowShares, borrowAmount);
 
-        _markets[marketId].totalBorrowShares =
-            FHE.add(_markets[marketId].totalBorrowShares, sharesToAdd);
-        _markets[marketId].totalBorrowAssets =
-            FHE.add(_markets[marketId].totalBorrowAssets, sharesToAdd);
-        _positions[marketId][user].borrowShares =
-            FHE.add(_positions[marketId][user].borrowShares, sharesToAdd);
+        _allow(_markets[mid].totalBorrowShares, address(0));
+        _allow(_markets[mid].totalBorrowAssets, address(0));
+        _allow(_positions[mid][user].borrowShares, user);
 
-        _allow(_markets[marketId].totalBorrowShares, address(0));
-        _allow(_markets[marketId].totalBorrowAssets, address(0));
-        _allow(_positions[marketId][user].borrowShares, user);
+        _positions[mid][user].plainBorrow = newBorrow;
 
         IERC20(params.loanToken).safeTransfer(receiver, plainAmount);
-        emit Borrowed(marketId, user, receiver, plainAmount);
+        emit Borrowed(mid, user, receiver, plainAmount);
     }
 
-    // ── Repay ────────────────────────────────────────────────────────────────
+    // ── repay ────────────────────────────────────────────────────────────────
 
     function repay(
         MarketParams calldata params,
@@ -272,65 +280,93 @@ contract BlackPools is IBlackPools, ReentrancyGuard {
         uint256               plainAmount,
         address               user
     ) external nonReentrant {
-        bytes32 marketId = params.id();
-        require(MarketLib.isCreated(_markets[marketId]), "BlackPools: market not found");
+        bytes32 mid = params.id();
+        require(MarketLib.isCreated(_markets[mid]), "BlackPools: market not found");
 
         IERC20(params.loanToken).safeTransferFrom(msg.sender, address(this), plainAmount);
 
-        euint128 repayAmount = FHE.asEuint128(encryptedRepayAmount);
-        FHE.allowThis(repayAmount);
-        FHE.allowSender(repayAmount);
+        euint128 repay = FHE.asEuint128(encryptedRepayAmount);
+        FHE.allowThis(repay);
+        FHE.allowSender(repay);
 
-        _initMarketIfNeeded(marketId, repayAmount);
-        _initPositionIfNeeded(marketId, user, repayAmount);
+        _initPositionIfNeeded(mid, user);
 
-        _markets[marketId].totalBorrowAssets =
-            FHE.sub(_markets[marketId].totalBorrowAssets, repayAmount);
-        _markets[marketId].totalBorrowShares =
-            FHE.sub(_markets[marketId].totalBorrowShares, repayAmount);
-        _positions[marketId][user].borrowShares =
-            FHE.sub(_positions[marketId][user].borrowShares, repayAmount);
+        _markets[mid].totalBorrowAssets =
+            FHE.sub(_markets[mid].totalBorrowAssets, repay);
+        _markets[mid].totalBorrowShares =
+            FHE.sub(_markets[mid].totalBorrowShares, repay);
+        _positions[mid][user].borrowShares =
+            FHE.sub(_positions[mid][user].borrowShares, repay);
 
-        _allow(_markets[marketId].totalBorrowAssets, address(0));
-        _allow(_markets[marketId].totalBorrowShares, address(0));
-        _allow(_positions[marketId][user].borrowShares, user);
+        _allow(_markets[mid].totalBorrowAssets, address(0));
+        _allow(_markets[mid].totalBorrowShares, address(0));
+        _allow(_positions[mid][user].borrowShares, user);
 
-        emit Repaid(marketId, user, plainAmount);
+        _positions[mid][user].plainBorrow =
+            _positions[mid][user].plainBorrow > plainAmount
+                ? _positions[mid][user].plainBorrow - plainAmount
+                : 0;
+
+        emit Repaid(mid, user, plainAmount);
     }
 
-    // ── Interest accrual ─────────────────────────────────────────────────────
+    // ── accrueInterest ───────────────────────────────────────────────────────
 
+    /// @param encryptedRate  Encrypted per-second rate (InEuint128).
+    /// @param plainRate      Plaintext per-second rate in ray units (1e27 = 100%).
+    ///                       Used for the fee split which requires plaintext division.
     function accrueInterest(
         MarketParams calldata params,
-        InEuint128   calldata encryptedRate
+        InEuint128   calldata encryptedRate,
+        uint256               plainRate
     ) external nonReentrant {
-        bytes32 marketId = params.id();
-        require(MarketLib.isCreated(_markets[marketId]), "BlackPools: market not found");
+        bytes32 mid = params.id();
+        require(MarketLib.isCreated(_markets[mid]), "BlackPools: market not found");
 
-        uint256 elapsed = block.timestamp - _markets[marketId].lastUpdate;
+        uint256 elapsed = block.timestamp - _markets[mid].lastUpdate;
         require(elapsed > 0, "BlackPools: no time elapsed");
 
         euint128 rate = FHE.asEuint128(encryptedRate);
         FHE.allowThis(rate);
-        _initMarketIfNeeded(marketId, rate);
         euint128 elapsedEnc = FHE.asEuint128(uint128(elapsed));
         FHE.allowThis(elapsedEnc);
-        euint128 interest = FHE.mul(_markets[marketId].totalBorrowAssets, FHE.mul(rate, elapsedEnc));
-        FHE.allowThis(interest);
 
-        _markets[marketId].totalBorrowAssets =
-            FHE.add(_markets[marketId].totalBorrowAssets, interest);
-        _markets[marketId].totalSupplyAssets =
-            FHE.add(_markets[marketId].totalSupplyAssets, interest);
-        _markets[marketId].lastUpdate = block.timestamp;
+        // grossInterest (encrypted) = totalBorrowAssets * rate * elapsed
+        euint128 grossInterest = FHE.mul(
+            _markets[mid].totalBorrowAssets,
+            FHE.mul(rate, elapsedEnc)
+        );
+        FHE.allowThis(grossInterest);
 
-        _allow(_markets[marketId].totalBorrowAssets, address(0));
-        _allow(_markets[marketId].totalSupplyAssets, address(0));
+        // Fee split uses plaintext arithmetic so the protocol can track fees
+        // without decrypting. The split ratio is public (FEE_BPS / 10000).
+        // grossInterestPlain is an approximation used only for the fee euint128.
+        uint256 grossInterestPlain  = (_markets[mid].plainTotalBorrow * plainRate * elapsed) / 1e27;
+        uint256 feePlain            = (grossInterestPlain * FEE_BPS) / 10_000;
+        uint256 supplierInterestPlain = grossInterestPlain - feePlain;
 
-        emit InterestAccrued(marketId, block.timestamp);
+        euint128 feeEnc = FHE.asEuint128(uint128(feePlain));
+        FHE.allowThis(feeEnc);
+        euint128 supplierInterest = FHE.asEuint128(uint128(supplierInterestPlain));
+        FHE.allowThis(supplierInterest);
+
+        // Borrowers owe the full gross interest
+        _markets[mid].totalBorrowAssets =
+            FHE.add(_markets[mid].totalBorrowAssets, grossInterest);
+        // Suppliers receive gross minus fee
+        _markets[mid].totalSupplyAssets =
+            FHE.add(_markets[mid].totalSupplyAssets, supplierInterest);
+
+        _markets[mid].lastUpdate         = block.timestamp;
+        _markets[mid].plainTotalBorrow  += grossInterestPlain;
+
+        _allow(_markets[mid].totalBorrowAssets, address(0));
+        _allow(_markets[mid].totalSupplyAssets, address(0));
+
+        emit InterestAccrued(mid, block.timestamp);
     }
 
-    // ── Liquidation ──────────────────────────────────────────────────────────
+    // ── liquidate ────────────────────────────────────────────────────────────
 
     function liquidate(
         MarketParams calldata params,
@@ -338,53 +374,69 @@ contract BlackPools is IBlackPools, ReentrancyGuard {
         InEuint128   calldata encryptedSeizedAssets,
         uint256               plainSeizedAssets
     ) external nonReentrant {
-        bytes32 marketId = params.id();
-        require(MarketLib.isCreated(_markets[marketId]), "BlackPools: market not found");
+        bytes32 mid = params.id();
+        require(MarketLib.isCreated(_markets[mid]), "BlackPools: market not found");
 
-        euint128 seizedAssets = FHE.asEuint128(encryptedSeizedAssets);
-        FHE.allowThis(seizedAssets);
-        FHE.allowSender(seizedAssets);
-        _initMarketIfNeeded(marketId, seizedAssets);
-        _initPositionIfNeeded(marketId, borrower, seizedAssets);
+        // Position must be unhealthy before liquidation is permitted
+        require(
+            !_isHealthy(
+                params,
+                _positions[mid][borrower].plainCollateral,
+                _positions[mid][borrower].plainBorrow
+            ),
+            "BlackPools: position healthy"
+        );
 
-        euint128 repaid = seizedAssets; // 1:1 for testnet
+        euint128 seized = FHE.asEuint128(encryptedSeizedAssets);
+        FHE.allowThis(seized);
+        FHE.allowSender(seized);
 
-        _positions[marketId][borrower].collateral =
-            FHE.sub(_positions[marketId][borrower].collateral, seizedAssets);
-        _markets[marketId].totalBorrowShares =
-            FHE.sub(_markets[marketId].totalBorrowShares, repaid);
-        _markets[marketId].totalBorrowAssets =
-            FHE.sub(_markets[marketId].totalBorrowAssets, repaid);
-        _positions[marketId][borrower].borrowShares =
-            FHE.sub(_positions[marketId][borrower].borrowShares, repaid);
+        // Repaid is proportional to seized; 1:1 for testnet
+        euint128 repaid = seized;
+        uint256  repaidPlain = plainSeizedAssets; // 1:1 collateral:debt for testnet
 
-        _allow(_positions[marketId][borrower].collateral,   borrower);
-        _allow(_markets[marketId].totalBorrowShares,        address(0));
-        _allow(_markets[marketId].totalBorrowAssets,        address(0));
-        _allow(_positions[marketId][borrower].borrowShares, borrower);
+        _positions[mid][borrower].collateral =
+            FHE.sub(_positions[mid][borrower].collateral, seized);
+        _markets[mid].totalBorrowShares =
+            FHE.sub(_markets[mid].totalBorrowShares, repaid);
+        _markets[mid].totalBorrowAssets =
+            FHE.sub(_markets[mid].totalBorrowAssets, repaid);
+        _positions[mid][borrower].borrowShares =
+            FHE.sub(_positions[mid][borrower].borrowShares, repaid);
+
+        _allow(_positions[mid][borrower].collateral,   borrower);
+        _allow(_markets[mid].totalBorrowShares,        address(0));
+        _allow(_markets[mid].totalBorrowAssets,        address(0));
+        _allow(_positions[mid][borrower].borrowShares, borrower);
+
+        _positions[mid][borrower].plainCollateral =
+            _positions[mid][borrower].plainCollateral > plainSeizedAssets
+                ? _positions[mid][borrower].plainCollateral - plainSeizedAssets
+                : 0;
+        _positions[mid][borrower].plainBorrow =
+            _positions[mid][borrower].plainBorrow > repaidPlain
+                ? _positions[mid][borrower].plainBorrow - repaidPlain
+                : 0;
 
         IERC20(params.collateralToken).safeTransfer(msg.sender, plainSeizedAssets);
-        emit Liquidated(marketId, borrower, msg.sender, plainSeizedAssets);
+        emit Liquidated(mid, borrower, msg.sender, plainSeizedAssets);
     }
 
-    // ── Views ────────────────────────────────────────────────────────────────
+    // ── views ────────────────────────────────────────────────────────────────
 
-    function market(bytes32 marketId) external view returns (Market memory) {
-        return _markets[marketId];
+    function market(bytes32 mid) external view returns (Market memory) {
+        return _markets[mid];
     }
 
-    function position(bytes32 marketId, address user) external view returns (Position memory) {
-        return _positions[marketId][user];
+    function position(bytes32 mid, address user) external view returns (Position memory) {
+        return _positions[mid][user];
     }
 
-    function idToMarketParams(bytes32 marketId) external view returns (MarketParams memory) {
-        return _marketParams[marketId];
+    function idToMarketParams(bytes32 mid) external view returns (MarketParams memory) {
+        return _marketParams[mid];
     }
 
-    function isMarketCreated(bytes32 marketId) external view returns (bool) {
-        return MarketLib.isCreated(_markets[marketId]);
+    function isMarketCreated(bytes32 mid) external view returns (bool) {
+        return MarketLib.isCreated(_markets[mid]);
     }
 }
-
-
-
