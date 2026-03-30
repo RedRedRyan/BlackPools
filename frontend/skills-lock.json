@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "appkit": {
+      "source": "reown-com/skills",
+      "sourceType": "github",
+      "computedHash": "32b308e4d99184d5847569e7c37823333a3fdd91d3218250e7f149cbaa1ad35f"
+    }
+  }
+}

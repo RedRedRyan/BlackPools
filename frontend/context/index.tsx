@@ -1,9 +1,8 @@
 'use client'
 
-import { wagmiAdapter, projectId, config } from '@/config'
+import { wagmiAdapter, projectId, networks } from '@/config'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createAppKit } from '@reown/appkit/react'
-import { baseSepolia, arbitrumSepolia } from '@reown/appkit/networks'
 import React, { type ReactNode } from 'react'
 import { cookieToInitialState, WagmiProvider, type Config } from 'wagmi'
 
@@ -18,7 +17,7 @@ if (!projectId) {
 const metadata = {
   name: 'BlackPools',
   description: 'Confidential Lending',
-  url: 'http://localhost:3000:', // origin must match your domain & subdomain
+  url: 'http://localhost:3000', // origin must match your domain & subdomain
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
@@ -26,8 +25,8 @@ const metadata = {
 const modal = createAppKit({
   adapters: [wagmiAdapter],
   projectId,
-  networks: [baseSepolia, arbitrumSepolia],
-  defaultNetwork: baseSepolia,
+  networks,
+  defaultNetwork: networks[0],
   metadata: metadata,
   features: {
     analytics: true // Optional - defaults to your Cloud configuration
