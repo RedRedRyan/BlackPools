@@ -12,21 +12,8 @@ const Page = () => {
 
  useGSAP(() => {
 
-	gsap.from('#c-right-leaf', {
+	gsap.from('#right-safe', {
 		x: 100, y: 600
-	})
-	const parallaxTimeline = gsap.timeline({
-	 scrollTrigger: {
-		trigger: '#about',
-		start: 'top 30%',
-		end: 'bottom 80%',
-		scrub: true,
-	 }
-	})
-	
-	parallaxTimeline
-	 .from('#c-left-leaf', {
-		x: -100, y: 100
 	})
 	
  })
@@ -48,13 +35,12 @@ const Page = () => {
 			pixelRatio={1}
 		/>
 		</div>
-	 <img src="/images/sawww.png" alt="l-leaf" id="c-left-leaf" />
-	 <img src="/images/safe.png" alt="r-leaf" id="c-right-leaf" className='size-160  xl:size-240'/>
+	 <img src="/images/safe.png" alt="r-safe" id="right-safe" className='size-160  xl:size-240'/>
 	 
 	 <div className="list">
 		<div className="popular">
 			<div className='flex-col'>
-		 <h2 className='text-4xl text-green'>Vaults</h2>
+		 <h2 className='text-4xl text-green'>Vaults here </h2>
 		 <h2>Lock and Earn </h2>
 		 </div>
 

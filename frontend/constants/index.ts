@@ -8,13 +8,10 @@ const navLinks = [
        title: "Markets",
     },
     {
-       id: "work",
-       title: "The Art",
+       id: "dashboard",
+       title: "Dashboard",
     },
-    {
-       id: "contact",
-       title: "Contact",
-    },
+
    ];
 
    const vaultLists = [
@@ -70,7 +67,7 @@ const navLinks = [
       slug: "market-1"
     },
     {
-      network: "/images/networks/base.png",
+      network: "/images/networks/base.jpeg",
       networkName: "Base",
       collateral: "/images/coins/eth.png",
       collateralSymbol: "ETH",

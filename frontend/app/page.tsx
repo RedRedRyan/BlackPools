@@ -49,7 +49,6 @@ const Hero = () => {
 	 },
 	})
 	.to(".hero-walet", { y: 200 }, 0)
-	.to(".left-leaf", { y: -200 }, 0)
 	.to(".arrow", { y: 100 }, 0);
 	
 	
@@ -76,11 +75,6 @@ const Hero = () => {
 	 <section id="hero" className="noisy">
 		<h1 className="title">Blackpools</h1>
 		
-		<img
-		 src="/images/wallet2'.png"
-		 alt="left-leaf"
-		 className="left-leaf"
-		/>
 		<img
 		 src="/images/wallet.png"
 		 alt="right-leaf"
