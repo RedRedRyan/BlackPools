@@ -75,12 +75,14 @@ const Hero = () => {
 		 <div className="content">
 			<div className="space-y-5 hidden md:block">
 			 <p>Earn. Lend. Borrow.</p>
+			 </div>
 			 <p className="subtitle">
-				Confidential <br /> Lending
+				Hidden<br />Liquidity 
 			 </p>
-			</div>
+			 
 			
-			<div className="view-cocktails">
+			
+			<div className="hero-buttons">
 			 
 			<ConnectButton  />
 						 <a href="#about" className="alt-badge">Learn More</a>

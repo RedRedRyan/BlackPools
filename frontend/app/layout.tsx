@@ -5,12 +5,15 @@ import Navbar from "@/components/Navbar";
 import { headers } from 'next/headers' // added
 import ContextProvider from '@/context'
 import Particles from "@/components/Particles";
+import GooeyNav from "@/components/GooeyNav";
 
 import { MorphSVGPlugin, ScrambleTextPlugin, ScrollTrigger, SplitText, ScrollSmoother, DrawSVGPlugin, Flip } from 'gsap/all'
 import gsap from 'gsap'
 import Footer from "@/components/Footer";
+import { navLinks } from "@/constants";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, MorphSVGPlugin, ScrambleTextPlugin, ScrollSmoother, DrawSVGPlugin, Flip)
+
 
 
 const schibstedGrotesk = Schibsted_Grotesk({
@@ -62,6 +65,7 @@ export default async function RootLayout({
            
 
       <ContextProvider cookies={cookies}>
+
         <Navbar />
         {children}
       <Footer/>

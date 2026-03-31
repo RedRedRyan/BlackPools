@@ -22,8 +22,8 @@ const navLinks = [
    ];
    const vaultLists = [
     {
-      network: "/images/networks/eth.png",
-      token: "/images/coins/usdc.png",
+      network: "https://www.cryptologos.xyz/data/svg/eth.svg",
+      token: "https://www.cryptologos.xyz/data/svg/usdc.svg",
       name: "USDC Core Vault",
       curator: "Gauntlet",
       liquidity: "$184.2M",
@@ -31,8 +31,8 @@ const navLinks = [
       slug: "vault-1"
     },
     {
-      network: "/images/networks/eth.png",
-      token: "/images/coins/usdc.png",
+      network: "https://www.cryptologos.xyz/data/svg/eth.svg",
+      token: "https://www.cryptologos.xyz/data/svg/usdc.svg",
       name: "ETH Flagship Vault",
       curator: "MEV Capital",
       liquidity: "$97.5M",
@@ -40,8 +40,8 @@ const navLinks = [
       slug: "vault-2"
     },
     {
-      network: "/images/networks/arb.jpeg",
-      token: "/images/networks/usdt.png",
+      network: "https://www.cryptologos.xyz/data/svg/defi-arbitrum-bridge.png",
+      token: "https://www.cryptologos.xyz/data/svg/usdt.svg",
       name: "WBTC Yield Vault",
       curator: "Re7 Labs",
       liquidity: "$61.0M",
@@ -49,8 +49,8 @@ const navLinks = [
       slug: "vault-3"
     },
     {
-      network: "/images/coins/eth.png",
-      token: "/images/coins/usdt.png",
+      network: "https://www.cryptologos.xyz/data/svg/eth.svg",
+      token: "https://www.cryptologos.xyz/data/svg/usdt.svg",
       name: "DAI Steakhouse",
       curator: "Steakhouse",
       liquidity: "$42.3M",
@@ -61,9 +61,9 @@ const navLinks = [
   
    const marketsList = [
     {
-      network: "/images/networks/eth.png",
+      network: "https://www.cryptologos.xyz/data/svg/eth.svg",
       networkName: "Ethereum",
-      collateral: "/images/coins/wbtc.png",
+      collateral: "https://www.cryptologos.xyz/data/svg/wbtc.svg",
       collateralSymbol: "WBTC",
       loan: "/images/coins/usdc.png",
       loanSymbol: "USDC",
@@ -75,7 +75,7 @@ const navLinks = [
     {
       network: "/images/networks/base.jpeg",
       networkName: "Base",
-      collateral: "/images/coins/eth.png",
+      collateral: "https://www.cryptologos.xyz/data/svg/eth.svg",
       collateralSymbol: "ETH",
       loan: "/images/coins/usdc.png",
       loanSymbol: "USDC",
@@ -87,9 +87,9 @@ const navLinks = [
     {
       network: "/images/networks/arb.jpeg",
       networkName: "Arbitrum",
-      collateral: "/images/coins/steth.png",
+      collateral: "https://www.cryptologos.xyz/data/svg/steth.svg",
       collateralSymbol: "stETH",
-      loan: "/images/coins/eth.png",
+      loan: "https://www.cryptologos.xyz/data/svg/eth.svg",
       loanSymbol: "ETH",
       lltv: "94.5%",
       sixHrRate: "0.0008%",
@@ -97,11 +97,11 @@ const navLinks = [
         slug: "market-3"
     },
     {
-      network: "/images/networks/eth.png",
+      network: "https://www.cryptologos.xyz/data/svg/eth.svg",
       networkName: "Ethereum",
-      collateral: "/images/coins/dai.png",
+      collateral: "https://www.cryptologos.xyz/data/svg/dai.svg",
       collateralSymbol: "DAI",
-      loan: "/images/coins/usdc.png",
+      loan: "https://www.cryptologos.xyz/data/svg/usdc.svg",
       loanSymbol: "USDC",
       lltv: "96.5%",
       sixHrRate: "0.0031%",

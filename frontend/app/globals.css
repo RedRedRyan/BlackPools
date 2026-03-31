@@ -98,7 +98,6 @@ nav {
     div {
         @apply flex md:flex-row flex-col md:justify-between items-center gap-5 py-5 lg:px-0 px-5 container mx-auto;
     }
-
     p {
         @apply font-bold text-3xl -mb-2;
     }
@@ -123,25 +122,21 @@ nav {
     }
 
     .body {
-        @apply container mx-auto absolute left-1/2 -translate-x-1/2 lg:bottom-20 top-auto md:bottom-[30vh] flex justify-between items-end px-5;
+        @apply container mx-auto absolute left-1/2 -translate-x-1/2 lg:bottom-20 bottom-10 md:bottom-[30vh] flex justify-between items-end px-5;
 
         .content {
             @apply flex lg:flex-row flex-col w-full gap-10 justify-between items-center lg:items-end mx-auto;
 
-            p:nth-of-type(2) {
-                @apply font-bold text-6xl text-green max-w-xl;
-            }
-
-            p:last-of-type {
+            p:nth-of-type(2) {             
                 @apply 2xl:text-start text-center;
             }
 
-            .view-cocktails {
-                @apply space-y-5 text-lg lg:max-w-2xs md:max-w-xs w-full;
+            p:last-of-type {
+                @apply font-bold text-6xl text-green max-w-xl;
+            }
 
-                p {
-                    @apply text-left;
-                }
+            .hero-buttons {
+                @apply space-y-5 text-lg lg:max-w-2xs md:max-w-xs w-full flex-row ;
 
                 
             }
