@@ -35,7 +35,6 @@ html,
 body {
   width: 100%;
   background-color: black;
-  color: white;
   scroll-behavior: smooth;
   overflow-x: hidden;
 }
@@ -180,18 +179,13 @@ nav {
     @apply grid grid-cols-1 md:grid-cols-12 gap-5 mb-5 md:px-0 px-5;
 
     > div {
-        @apply rounded-3xl overflow-hidden h-72 relative;
+        @apply rounded-3xl overflow-hidden h-72 relative bg-blue hover:bg-green hover:text-black transition-colors cursor-pointer;
     }
 
     img {
         @apply object-right w-full h-full;
     }
-    .temp{
-        background-color: var(--primary);
-        img{
-            @apply right-0;
-        }
-    }
+    
 }
 }
 
@@ -283,7 +277,240 @@ nav {
   }
 }
 
+/* ════════════════════════════════════════════════════
+   DASHBOARD  — append inside @layer components {}
+   ════════════════════════════════════════════════════ */
 
+   #dashboard {
+    @apply min-h-dvh w-full px-5 sm:px-10 pt-28 pb-20 container mx-auto space-y-10;
+  
+    /* ── Page header ── */
+    .db-header {
+      @apply flex items-start justify-between flex-wrap gap-6;
+  
+      h1 {
+        @apply font-schibsted-grotesk text-5xl md:text-6xl font-bold
+               text-white leading-none mt-1
+               [background-image:none] [-webkit-text-fill-color:white];
+      }
+    }
+  
+    .db-eyebrow {
+      @apply text-xs uppercase tracking-widest text-white/30 font-medium mb-1;
+    }
+  
+    .db-address {
+      @apply flex items-center gap-2 text-sm text-white/40 font-inter mt-3;
+    }
+  
+    .db-dot {
+      @apply inline-block w-2 h-2 rounded-full shrink-0;
+    }
+  
+    .db-header-actions {
+      @apply flex items-center gap-3 mt-2;
+    }
+  
+    /* ── Pill buttons ── */
+    .db-pill-btn {
+      @apply bg-white/5 hover:bg-white/10 border border-white/10
+             text-white/70 hover:text-white text-sm font-medium
+             rounded-lg px-4 py-2 cursor-pointer transition-all duration-200;
+  
+      &.accent {
+        @apply bg-green text-black border-green hover:bg-white font-semibold;
+      }
+  
+      &.small {
+        @apply text-xs px-3 py-1.5;
+      }
+    }
+  
+    /* ═══════════════════════════
+       STATS GRID (3 columns)
+    ═══════════════════════════ */
+    .db-stats-grid {
+      @apply grid grid-cols-1 md:grid-cols-3 gap-5;
+    }
+  
+    .db-stat-card {
+      @apply relative rounded-2xl border border-white/10 bg-white/[0.03]
+             backdrop-blur-md px-6 py-5 space-y-2 overflow-hidden
+             transition-all duration-300
+             hover:border-white/20 hover:bg-white/[0.05];
+  
+      /* Featured card gets subtle green border glow */
+      &.featured {
+        @apply border-green/20;
+      }
+    }
+  
+    .db-card-glow {
+      @apply absolute -bottom-10 -right-10 w-40 h-40 rounded-full
+             pointer-events-none;
+      background: radial-gradient(circle, rgba(164,244,161,0.08) 0%, transparent 70%);
+    }
+  
+    .db-stat-header {
+      @apply flex items-center justify-between;
+    }
+  
+    .db-stat-label {
+      @apply text-xs uppercase tracking-widest text-white/40 font-medium;
+    }
+  
+    .db-stat-value {
+      @apply font-schibsted-grotesk text-4xl md:text-5xl font-bold text-white leading-none pt-1;
+  
+      &.green {
+        @apply text-green;
+      }
+    }
+  
+    .db-stat-footer {
+      @apply flex items-center gap-3 flex-wrap pt-1;
+    }
+  
+    .db-stat-sub {
+      @apply text-xs text-white/30;
+    }
+  
+    .db-badge {
+      @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  
+      &.up   { @apply bg-green/15 text-green; }
+      &.down { @apply bg-orange-500/15 text-orange-400; }
+    }
+  
+    .db-warn {
+      @apply text-xs text-yellow-400 font-medium;
+    }
+  
+    /* Health factor bar */
+    .db-health {
+      @apply flex items-center gap-3 mt-3;
+    }
+  
+    .db-health-bar {
+      @apply flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden;
+    }
+  
+    .db-health-fill {
+      @apply h-full rounded-full;
+      background: linear-gradient(90deg, #f97316, #facc15, var(--color-green));
+    }
+  
+    .db-health-label {
+      @apply text-xs text-white/40;
+  
+      b { @apply text-white font-semibold; }
+    }
+  
+    /* ═══════════════════════════
+       NETWORK SELECT DROPDOWN
+    ═══════════════════════════ */
+    .network-select {
+      @apply relative z-20;
+    }
+  
+    .network-trigger {
+      @apply flex items-center gap-2 bg-white/5 hover:bg-white/10
+             border border-white/10 rounded-lg px-3 py-1.5
+             text-xs text-white/70 font-medium cursor-pointer
+             transition-colors duration-200;
+    }
+  
+    .net-dot {
+      @apply inline-block w-2 h-2 rounded-full shrink-0;
+    }
+  
+    .network-dropdown {
+      @apply absolute right-0 top-full mt-1 w-36
+             bg-[#0d1b2a] border border-white/10 rounded-xl
+             overflow-hidden shadow-2xl list-none;
+  
+      li {
+        @apply flex items-center gap-2 px-4 py-2.5
+               text-xs text-white/60 hover:text-white hover:bg-white/5
+               cursor-pointer transition-colors list-none;
+  
+        &.active { @apply text-white bg-white/[0.07]; }
+      }
+    }
+  
+    /* ═══════════════════════════
+       SECTION WRAPPER
+    ═══════════════════════════ */
+    .db-section {
+      @apply space-y-5;
+    }
+  
+    .db-section-head {
+      @apply flex items-center justify-between;
+  
+      h3 {
+        @apply font-schibsted-grotesk text-xl font-bold text-white;
+      }
+    }
+  
+    /* ═══════════════════════════
+       TRANSACTION TABLE
+    ═══════════════════════════ */
+    .db-tx-table {
+      @apply rounded-2xl border border-white/10 bg-white/[0.02] overflow-hidden;
+    }
+  
+    .db-tx-row {
+      @apply grid px-5 py-4 items-center
+             border-b border-white/5 last:border-0
+             transition-colors duration-150 hover:bg-white/[0.03]
+             text-sm text-white/70;
+  
+      /* 7 columns */
+      grid-template-columns: 1fr 0.7fr 1fr 1fr 0.8fr 0.9fr 0.8fr;
+  
+      &.header {
+        @apply text-[10px] uppercase tracking-widest text-white/25
+               font-medium py-3 hover:bg-transparent border-b border-white/10;
+      }
+    }
+  
+    .db-tx-type {
+      @apply font-semibold;
+    }
+  
+    .db-tx-asset {
+      @apply text-white font-medium;
+    }
+  
+    .db-tx-network {
+      @apply flex items-center gap-2 text-white/50;
+    }
+  
+    .db-tx-net-dot {
+      @apply inline-block w-2 h-2 rounded-full shrink-0;
+    }
+  
+    .db-tx-amount {
+      @apply font-semibold font-inter;
+    }
+  
+    .db-tx-usd {
+      @apply text-white/40;
+    }
+  
+    .db-tx-time {
+      @apply text-white/30 text-xs;
+    }
+  
+    .db-status {
+      @apply inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide;
+  
+      &.confirmed { @apply bg-green/15 text-green; }
+      &.pending   { @apply bg-yellow-400/15 text-yellow-400; }
+      &.failed    { @apply bg-red-500/15 text-red-400; }
+    }
+  }
 
 
   #explore-btn {
@@ -768,7 +995,7 @@ nav {
       @apply grid grid-cols-1 xl:grid-cols-6 gap-5 mb-5 md:px-0 px-5;
 
       > div {
-          @apply rounded-3xl overflow-hidden h-auto relative;
+          @apply overflow-hidden h-auto relative;
       }
 
       img {

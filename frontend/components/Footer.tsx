@@ -37,7 +37,7 @@ const Footer = () => {
 		</ul>
 		</div>
 
-        <div className="md:col-span-2">
+        <div className="md:col-span-2 ">
 		<a className='text-green mb-3 text-lg' href='https://ystudios.vercel.app/'>ystudios</a>
         <p className='text-white font-bold'>&copy; {new Date().getFullYear()} YStudios. All Rights Reserved.</p>
             </div>
