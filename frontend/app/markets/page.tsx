@@ -3,7 +3,7 @@ import { useGSAP } from '@gsap/react'
 import gsap from 'gsap';
 import { marketsList } from '@/constants';
 import MarketCard from '@/components/MarketCard';
-import Particles from '@/components/Particles';
+
 
 const Page = () => {
 
@@ -17,19 +17,7 @@ const Page = () => {
 
   return (
     <section id="markets" className="noisy">
-      <div className="absolute inset-0 w-full h-full">
-        <Particles
-          particleColors={["#a4f4a1"]}
-          particleCount={200}
-          particleSpread={10}
-          speed={0.1}
-          particleBaseSize={100}
-          moveParticlesOnHover
-          alphaParticles={false}
-          disableRotation={false}
-          pixelRatio={1}
-        />
-      </div>
+
 
       <img src="/images/rates.png" alt="l-safe" id="left-safe" className='size-100 xl:size-150' />
 
@@ -44,7 +32,7 @@ const Page = () => {
           <ul className='market-grid'>
             <div className='md:col-span-1'></div>
             {marketsList.map((market) => (
-              <li key={market.name}>
+              <li key={market.slug}>
                 <MarketCard {...market} />
               </li>
             ))}

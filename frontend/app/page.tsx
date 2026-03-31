@@ -58,20 +58,7 @@ const Hero = () => {
  
  return (
 	<>
-          <div className="absolute inset-0 w-full h-full ">
-          
-  <Particles
-    particleColors={["#a4f4a1"]}
-    particleCount={200}
-    particleSpread={10}
-    speed={0.1}
-    particleBaseSize={100}
-    moveParticlesOnHover
-    alphaParticles={false}
-    disableRotation={false}
-    pixelRatio={1}
-/>
-</div>
+
 	 <section id="hero" className="noisy">
 		<h1 className="title">Blackpools</h1>
 		

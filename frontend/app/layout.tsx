@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { headers } from 'next/headers' // added
 import ContextProvider from '@/context'
+import Particles from "@/components/Particles";
 
 import { MorphSVGPlugin, ScrambleTextPlugin, ScrollTrigger, SplitText, ScrollSmoother, DrawSVGPlugin, Flip } from 'gsap/all'
 import gsap from 'gsap'
@@ -44,6 +45,21 @@ export default async function RootLayout({
       <body
         className={`${schibstedGrotesk.variable} ${martianMono.variable} ${inter.variable} min-h-screen antialiased`}
       >
+                  <div className="absolute inset-0 w-full h-full ">
+          
+          <Particles
+            particleColors={["#a4f4a1"]}
+            particleCount={200}
+            particleSpread={10}
+            speed={0.1}
+            particleBaseSize={100}
+            moveParticlesOnHover
+            alphaParticles={false}
+            disableRotation={false}
+            pixelRatio={1}
+        />
+        </div>
+           
 
       <ContextProvider cookies={cookies}>
         <Navbar />
