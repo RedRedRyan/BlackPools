@@ -27,10 +27,10 @@ const Footer = () => {
 		
 		<div className="md:col-span-2">
 		 <div  className="info2" />
-            <ul className='font-arvo text-xl text-white'>
+            <ul className='font-arvo text-xl text-white list-none '>
 		 {navLinks.map((link) => (
 			<li key={link.id}>
-			 <a href={link.id}>{link.title}</a>
+			 <a href={link.id} className='hover:text-green'>{link.title}</a>
 			</li>
 		 ))}
 		</ul>

@@ -49,7 +49,6 @@ const Hero = () => {
 	 },
 	})
 	.to(".hero-walet", { y: 200 }, 0)
-	.to(".left-leaf", { y: -200 }, 0)
 	.to(".arrow", { y: 100 }, 0);
 	
 	
@@ -59,28 +58,10 @@ const Hero = () => {
  
  return (
 	<>
-          <div className="absolute inset-0 w-full h-full ">
-          
-  <Particles
-    particleColors={["#a4f4a1"]}
-    particleCount={200}
-    particleSpread={10}
-    speed={0.1}
-    particleBaseSize={100}
-    moveParticlesOnHover
-    alphaParticles={false}
-    disableRotation={false}
-    pixelRatio={1}
-/>
-</div>
+
 	 <section id="hero" className="noisy">
 		<h1 className="title">Blackpools</h1>
 		
-		<img
-		 src="/images/wallet2'.png"
-		 alt="left-leaf"
-		 className="left-leaf"
-		/>
 		<img
 		 src="/images/wallet.png"
 		 alt="right-leaf"

@@ -119,11 +119,6 @@ nav {
     h1 {
         @apply md:mt-32 mt-40 text-4xl md:text-[16vw] leading-none text-center font-schibsted-grotesk;
     }
-
-    .left-leaf {
-        @apply absolute left-0 md:top-20 xl:top-36 2xl:top-52 md:bottom-auto -bottom-20 md:w-fit w-1/3;
-    }
-
     .hero-wallet {
         @apply absolute right-0 xl:top-0 2xl:top-12 top-1/2  md:bottom-auto -translate-y-1/2 md:translate-y-0 md:w-fit -z-10;
     }
@@ -205,18 +200,14 @@ nav {
 #vaults {
   @apply relative min-h-dvh w-full overflow-hidden;
 
-  #c-left-leaf {
-    @apply absolute left-0 md:bottom-0 md:top-auto -top-20 md:w-fit w-1/3;
-  }
-  #c-right-leaf {
+  #right-safe {
     @apply absolute right-0  md:bottom-auto -bottom-20 md:w-fit w-1/3 ;
   }
 
   .list {
     @apply container mx-auto relative z-10 flex md:flex-row flex-col justify-between items-start gap-16 pt-40 2xl:px-0 px-5;
 
-    .popular,
-    .loved {
+    .popular{
       @apply space-y-6 w-full md:w-fit pb-20 md:pb-0;
     }
 
@@ -252,15 +243,21 @@ nav {
   }
 }
 
+
+
 #markets {
   @apply relative min-h-dvh w-full overflow-hidden;
 
-  .list {
-    @apply container mx-auto relative z-10 flex md:flex-row flex-col justify-between items-start gap-16 pt-40 2xl:px-0 px-5;
+  #left-safe {
+    @apply absolute left-0 top-0 md:w-fit w-1/3;
   }
 
+  .list {
+    @apply container mx-auto relative z-10 flex md:flex-row flex-col
+           items-end gap-16 pt-40 2xl:px-0 px-5; 
+
     .loved {
-      @apply space-y-6 w-full md:w-fit pb-20 md:pb-0;
+      @apply space-y-6 w-full pb-20 md:pb-0;
     }
 
     h2 {
@@ -268,10 +265,9 @@ nav {
     }
 
     .market-grid {
-      @apply grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-1;
+      @apply grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6;
     }
 
-    /* ── Shared list shell ── */
     ul {
       @apply space-y-4;
 
@@ -283,43 +279,6 @@ nav {
                transition-colors duration-200
                hover:bg-white/10;
       }
-    }
-
-  
-  /* ── Coin pair ── */
-  .coin-pair {
-    @apply flex flex-col items-center gap-1 shrink-0 w-24;
-
-    .coin-icons {
-      @apply flex items-center;
-    }
-    .coin-icon {
-      @apply w-6 h-6 rounded-full bg-white/10 object-contain;
-    }
-    .coin-icon.overlap {
-      @apply -ml-2 ring-1 ring-black/30;
-    }
-    span {
-      @apply text-[10px] text-white/60 font-medium text-center;
-    }
-  }
-   /* ── Market stats ── */
-   .market-stats {
-    @apply flex gap-3 shrink-0 ml-auto;
-  }
-
-  /* ── Shared stat pill ── */
-  .stat {
-    @apply flex flex-col items-end;
-
-    .label {
-      @apply text-[9px] uppercase tracking-wider text-white/40;
-    }
-    .value {
-      @apply text-sm font-semibold text-white;
-    }
-    .value.apy {
-      @apply text-green;
     }
   }
 }
@@ -344,9 +303,9 @@ nav {
   /* ── Vault card ── */
   #vault-card {
     /* ── Vault info ── */
-    @apply flex flex-col gap-3 h-48 w-48;
+    @apply flex flex-col gap-3 h-48 w-36 cursor-pointer;
     .token{
-      @apply size-8 object-cover;
+      @apply size-8 object-cover rounded-full;
     }
     
     
@@ -362,7 +321,7 @@ nav {
     .vault-stats {
       @apply flex-col gap-4 w-full;
       .vault-network {
-        @apply size-5 ;
+        @apply size-5 rounded-full ;
       }
       .stat {
         @apply flex flex-row items-end ;
@@ -381,6 +340,62 @@ nav {
       
     
   }
+
+
+#market-card {
+  @apply flex flex-row gap-3 md:col-span-1 h-28 cursor-pointer w-full ;
+
+  
+
+  .market-info {
+    h3 {
+      @apply font-nunito text-lg xl:text-xl text-green truncate mt-3;
+    }
+
+      /* ── Coin pair ── */
+  .coin-pair {
+    @apply flex flex-col items-center gap-1 shrink-0 w-24;
+
+    .coin-icons {
+      @apply flex items-center;
+    }
+    .coin-icon {
+      @apply w-12 h-12 rounded-full bg-white/10 object-contain;
+    }
+    .coin-icon.overlap {
+      @apply -ml-2 ring-1 ring-black/30;
+    }
+    span {
+      @apply text-[10px] text-white/60 font-medium text-center mt-1;
+    }
+  }
+
+    .network-name {
+      @apply text-xs text-white/50 mt-2 text-center;
+    }
+  }
+
+  .market-stats {
+    @apply flex flex-col gap-1 w-full;
+
+    .stat {
+      @apply flex flex-row items-center gap-2 mt-1;
+
+      .label {
+        @apply text-xs uppercase tracking-wider text-white/40;
+      }
+      .value {
+        @apply text-sm font-semibold text-white;
+      }
+      .value.apy {
+        @apply text-green text-lg;
+      }
+    }
+  }
+  .market-network {
+    @apply size-5 object-cover rounded-full;
+  }
+}
 
   .events {
     @apply grid md:grid-cols-3 gap-10 sm:grid-cols-2 grid-cols-1;
@@ -410,8 +425,264 @@ nav {
       }
     }
   }
+/* ── Replace your existing #market-detail block in globals.css with this ── */
 
+#market-detail {
+  @apply min-h-dvh w-full px-5 sm:px-10 pt-28 pb-20 container mx-auto;
 
+  /* ══════════════════════════════
+     HEADER
+  ══════════════════════════════ */
+  .md-header {
+    @apply mb-10 space-y-4;
+  }
+
+  .md-title-row {
+    @apply flex items-center gap-5 flex-wrap;
+  }
+
+  /* Large overlapping coin icons (matches screenshot scale) */
+  .md-coin-stack {
+    @apply relative flex items-center w-24 h-14 shrink-0;
+
+    .md-coin {
+      @apply absolute w-14 h-14 rounded-full object-cover ring-[3px] ring-black;
+    }
+    .md-coin-back  { @apply left-0 z-10; }
+    .md-coin-front { @apply left-8 z-20; }
+  }
+
+  /* Pair name: large white, no gradient (overrides global h1) */
+  .md-pair-name {
+    @apply font-schibsted-grotesk text-4xl md:text-5xl font-bold
+           text-white leading-none
+           [background-image:none] [-webkit-text-fill-color:white];
+  }
+
+  .md-lltv-badge {
+    @apply bg-white/10 border border-white/20 text-white/80
+           text-sm font-semibold px-3 py-1 rounded-md;
+  }
+
+  /* Address + network row */
+  .md-meta {
+    @apply flex items-center gap-4 flex-wrap;
+  }
+
+  .md-address {
+    @apply font-inter text-white/50 text-sm tracking-wide flex items-center gap-1.5;
+  }
+
+  .md-copy-icon {
+    @apply text-white/30 hover:text-white/60 transition-colors cursor-pointer;
+  }
+
+  .md-network-pill {
+    @apply flex items-center gap-2 bg-blue/50 border border-white/10
+           rounded-md px-3 py-1;
+
+    .md-network-icon {
+      @apply w-4 h-4 rounded-full object-cover;
+    }
+    span {
+      @apply text-xs text-white font-medium;
+    }
+  }
+
+  /* ══════════════════════════════
+     STATS BAR (big numbers like $1.13B)
+  ══════════════════════════════ */
+  .md-stats-bar {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-8 mb-10
+           border-b border-white/10 pb-10;
+  }
+
+  .md-stat-block {
+    @apply flex flex-col gap-1;
+
+    .md-stat-label {
+      @apply text-xs uppercase tracking-widest text-white/40 flex items-center gap-1;
+    }
+
+    .md-info-icon {
+      @apply text-white/20 text-xs cursor-help;
+    }
+
+    /* Big dollar values */
+    .md-stat-value {
+      @apply font-schibsted-grotesk text-4xl md:text-5xl font-bold text-white leading-none;
+    }
+
+    /* Rate gets green */
+    .md-stat-value--rate {
+      @apply text-green;
+    }
+
+    .md-stat-sub {
+      @apply text-xs text-white/40 mt-0.5;
+    }
+  }
+
+  /* Trusted By avatar stack */
+  .md-trusted {
+    @apply flex items-center mt-2;
+
+    .md-avatar {
+      @apply w-9 h-9 rounded-full object-cover ring-2 ring-black -ml-2 first:ml-0;
+    }
+  }
+
+  /* ══════════════════════════════
+     BODY LAYOUT
+  ══════════════════════════════ */
+  .md-body {
+    @apply flex flex-col lg:flex-row gap-10 items-start;
+  }
+
+  /* ── Left content (2/3) ── */
+  .md-content {
+    @apply flex-[2] w-full min-w-0;
+  }
+
+  /* Tab strip */
+  .md-tabs {
+    @apply flex gap-6;
+  }
+
+  .md-tab {
+    @apply font-nunito text-sm text-white/40 pb-3 cursor-pointer
+           transition-colors duration-200 hover:text-white/60
+           border-b-2 border-transparent whitespace-nowrap;
+
+    &.active {
+      @apply text-white border-white;
+    }
+  }
+
+  .md-divider {
+    @apply w-full border-t border-white/10 mb-8;
+  }
+
+  /* Market Attributes */
+  .md-section-title {
+    @apply font-schibsted-grotesk text-base font-semibold text-white mb-4;
+  }
+
+  .md-attributes {
+    @apply rounded-xl border border-white/10 bg-white/[0.03] overflow-hidden;
+  }
+
+  .md-attr-row {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-4 px-6 py-4 items-center;
+
+    .md-attr-key {
+      @apply text-sm text-white/40;
+    }
+    .md-attr-val {
+      @apply text-sm text-white font-medium flex items-center gap-2;
+    }
+    .md-attr-icon {
+      @apply w-5 h-5 rounded-full object-cover;
+    }
+    .md-ext-icon {
+      @apply text-white/30;
+    }
+  }
+
+  .md-attr-divider {
+    @apply border-t border-white/10;
+  }
+
+  .md-empty-tab {
+    @apply py-24 text-center text-white/20 text-sm;
+  }
+
+  /* ── Right sidebar (1/3) ── */
+  .md-sidebar {
+    @apply w-full lg:w-80 xl:w-96 shrink-0 space-y-3 lg:sticky lg:top-28;
+  }
+
+  /* "Borrow" toggle button (matches screenshot top-right pill) */
+  .md-borrow-btn {
+    @apply w-fit bg-white/10 hover:bg-white/15 border border-white/20
+           text-white font-medium text-sm rounded-lg px-5 py-2 cursor-pointer
+           transition-all duration-200 ml-auto block;
+  }
+
+  /* Supply / Borrow input cards */
+  .md-action-card {
+    @apply rounded-2xl border border-white/10 bg-white/[0.04]
+           backdrop-blur-md px-5 py-4 space-y-2;
+
+    .md-action-header {
+      @apply flex justify-between items-center text-sm text-white/50;
+
+      .md-action-icon {
+        @apply w-6 h-6 rounded-full object-cover;
+      }
+    }
+
+    /* Large placeholder amount like "0.00" in screenshot */
+    .md-action-input {
+      @apply w-full bg-transparent text-4xl font-schibsted-grotesk font-semibold
+             text-white/20 placeholder-white/20 outline-none
+             [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none
+             [&::-webkit-inner-spin-button]:appearance-none;
+    }
+
+    .md-action-usd {
+      @apply text-xs text-white/30;
+    }
+
+    /* Slider bar at bottom of card */
+    .md-action-bar {
+      @apply w-full h-1 rounded-full bg-white/10 mt-2 overflow-hidden;
+
+      .md-action-bar-fill {
+        @apply h-full w-0 bg-green rounded-full;
+      }
+    }
+  }
+
+  /* Info / summary card */
+  .md-info-card {
+    @apply rounded-2xl border border-white/10 bg-white/[0.04]
+           backdrop-blur-md px-5 py-4 space-y-3;
+
+    .md-info-row {
+      @apply flex justify-between items-center;
+
+      .md-info-key {
+        @apply text-xs text-white/40;
+      }
+      .md-info-val {
+        @apply text-xs text-white font-medium flex items-center gap-1.5;
+      }
+      .md-info-highlight {
+        @apply text-white font-semibold text-sm;
+      }
+
+      .md-attr-icon {
+        @apply w-4 h-4 rounded-full object-cover;
+      }
+    }
+
+    /* LTV progress bar */
+    .md-info-bar {
+      @apply w-20 h-1.5 rounded-full bg-white/10 overflow-hidden;
+
+      .md-info-bar-fill {
+        @apply h-full bg-green rounded-full;
+      }
+    }
+  }
+
+  .md-input {
+    @apply w-full bg-white/10 border border-white/10 rounded-lg
+           px-4 py-2 text-sm text-white placeholder-white/30
+           focus:outline-none focus:border-green transition-colors;
+  }
+}
   #event {
     .header {
       @apply flex w-2/3 flex-col items-start gap-4 max-lg:w-full mb-10;
