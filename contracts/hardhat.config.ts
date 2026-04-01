@@ -4,7 +4,7 @@ import "cofhe-hardhat-plugin";
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import dotenv from "dotenv";
-
+ 
 dotenv.config(); // Load from current directory
 dotenv.config({ path: "../.env" }); // Fallback to parent directory
 

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState } from 'react'
-import useGetEthSepoliaGetBalanceOfTUSDT from '@/lib/balance-checker'
+import {useGetEthSepoliaGetBalanceOfTUSDT} from '@/lib/balance-checker'
 import { useAppKitAccount, useAppKitNetwork } from "@reown/appkit/react";
 import { formatUnits } from 'viem';
 import { ethereumSepolia } from '@/config';
