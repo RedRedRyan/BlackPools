@@ -199,10 +199,7 @@ const Page = () => {
             <span>Type</span>
             <span>Asset</span>
             <span>Network</span>
-            <span>Amount</span>
-            <span>Value</span>
-            <span>Status</span>
-            <span>Time</span>
+          
           </div>
 
           {RECENT_TXS.map(tx => (
@@ -218,16 +215,6 @@ const Page = () => {
                   style={{ background: NETWORKS.find(n => n.label === tx.network)?.color }} />
                 {tx.network}
               </span>
-              <span className="db-tx-amount" style={{
-                color: tx.amount.startsWith('+') ? 'var(--color-green)' : '#f87171'
-              }}>
-                {tx.amount}
-              </span>
-              <span className="db-tx-usd">{tx.usd}</span>
-              <span>
-                <span className={`db-status ${tx.status}`}>{tx.status}</span>
-              </span>
-              <span className="db-tx-time">{tx.time}</span>
             </div>
           ))}
         </div>
