@@ -30,7 +30,7 @@ const Page = () => {
           </div>
 
           <ul className='market-grid'>
-            <div className='md:col-span-1'></div>
+            <div className='col-span-1'></div>
             {marketsList.map((market) => (
               <li key={market.slug}>
                 <MarketCard {...market} />

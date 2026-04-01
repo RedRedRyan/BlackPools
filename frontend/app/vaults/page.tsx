@@ -27,7 +27,7 @@ const Page = () => {
 	 <div className="list">
 		<div className="popular">
 			<div className='flex-col'>
-		 <h2 className='text-4xl text-green'>Vaults here </h2>
+		 <h2 className='text-4xl text-green'>InvisiVaults </h2>
 		 <h2>Lock and Earn </h2>
 		 </div>
 

@@ -28,7 +28,6 @@ const Hero = () => {
 	 duration: 1.8,
 	 ease: "expo.out",
 	 stagger: 0.06,
-	 repeat: 1,
 	});
 	
 	gsap.from(paragraphSplit.lines, {
@@ -75,12 +74,15 @@ const Hero = () => {
 		 <div className="content">
 			<div className="space-y-5 hidden md:block">
 			 <p>Earn. Lend. Borrow.</p>
+			 
 			 <p className="subtitle">
-				Confidential <br /> Lending
+				Hidden<br />Liquidity 
 			 </p>
-			</div>
+			 </div>
+			 
 			
-			<div className="view-cocktails">
+			
+			<div className="hero-buttons">
 			 
 			<ConnectButton  />
 						 <a href="#about" className="alt-badge">Learn More</a>

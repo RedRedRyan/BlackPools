@@ -6,11 +6,14 @@ import { headers } from 'next/headers' // added
 import ContextProvider from '@/context'
 import Particles from "@/components/Particles";
 
+
 import { MorphSVGPlugin, ScrambleTextPlugin, ScrollTrigger, SplitText, ScrollSmoother, DrawSVGPlugin, Flip } from 'gsap/all'
 import gsap from 'gsap'
 import Footer from "@/components/Footer";
+import { navLinks } from "@/constants";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, MorphSVGPlugin, ScrambleTextPlugin, ScrollSmoother, DrawSVGPlugin, Flip)
+
 
 
 const schibstedGrotesk = Schibsted_Grotesk({
@@ -30,6 +33,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Blackpools",
   description: "Confidential Lending",
+  icons: {
+    icon: "/images/logo.png",
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
 };
 
 export default async function RootLayout({
@@ -62,6 +70,7 @@ export default async function RootLayout({
            
 
       <ContextProvider cookies={cookies}>
+
         <Navbar />
         {children}
       <Footer/>

@@ -71,7 +71,7 @@ Fully Homomorphic Encryption
               <h3 className="text-xl font-bold mb-2 text-primary">
                 {feature.title}
               </h3>
-              <p className="text-muted-foreground">{feature.description}</p>
+              <p className="font-nunito">{feature.description}</p>
             </div>
           </div>
         ))}

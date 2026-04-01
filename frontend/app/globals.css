@@ -56,11 +56,11 @@ body {
   box-shadow: 0px 4px 40px 0px #00000066;
 }
 
-@utility green-img {
-  background: url("/images/green.png") no-repeat center;
+@utility light-bg {
+  background: url("/images/darkbg.png") no-repeat center;
   background-size: cover;
   width: 100%;
-  height: 100%;
+  height: fit;
   position: absolute;
 }
 
@@ -98,7 +98,6 @@ nav {
     div {
         @apply flex md:flex-row flex-col md:justify-between items-center gap-5 py-5 lg:px-0 px-5 container mx-auto;
     }
-
     p {
         @apply font-bold text-3xl -mb-2;
     }
@@ -123,25 +122,21 @@ nav {
     }
 
     .body {
-        @apply container mx-auto absolute left-1/2 -translate-x-1/2 lg:bottom-20 top-auto md:bottom-[30vh] flex justify-between items-end px-5;
+        @apply container mx-auto absolute left-1/2 -translate-x-1/2 lg:bottom-20 bottom-10 md:bottom-[30vh] flex justify-between items-end px-5;
 
         .content {
             @apply flex lg:flex-row flex-col w-full gap-10 justify-between items-center lg:items-end mx-auto;
 
             p:nth-of-type(2) {
-                @apply font-bold text-6xl text-green max-w-xl;
-            }
+              @apply font-nunito text-6xl text-green max-w-xl;
+          }
 
-            p:last-of-type {
-                @apply 2xl:text-start text-center;
-            }
+          p:last-of-type {
+              @apply 2xl:text-start text-center;
+          }
 
-            .view-cocktails {
-                @apply space-y-5 text-lg lg:max-w-2xs md:max-w-xs w-full;
-
-                p {
-                    @apply text-left;
-                }
+            .hero-buttons {
+                @apply space-y-5 text-lg lg:max-w-2xs md:max-w-xs w-full flex-row ;
 
                 
             }
@@ -176,7 +171,7 @@ nav {
   }
 
   .features-grid {
-    @apply grid grid-cols-1 md:grid-cols-12 gap-5 mb-5 md:px-0 px-5;
+    @apply grid grid-cols-2 md:grid-cols-12 gap-5 mb-5 md:px-0 px-5;
 
     > div {
         @apply rounded-3xl overflow-hidden h-72 relative bg-blue hover:bg-green hover:text-black transition-colors cursor-pointer;
@@ -195,7 +190,7 @@ nav {
   @apply relative min-h-dvh w-full overflow-hidden;
 
   #right-safe {
-    @apply absolute right-0  md:bottom-auto -bottom-20 md:w-fit w-1/3 ;
+    @apply absolute right-0  md:bottom-auto -bottom-80 md:w-fit w-1/3 ;
   }
 
   .list {
@@ -210,7 +205,7 @@ nav {
     }
 
     .vault-grid {
-      @apply grid grid-rows-1 md:grid-cols-3 lg:grid-cols-3 gap-6;
+      @apply grid grid-cols-2 lg:grid-cols-3 gap-6;
     }
 
     /* ── Shared list shell ── */
@@ -220,7 +215,7 @@ nav {
       li {
         @apply flex items-center gap-4
                border border-white/10 rounded-xl
-               bg-white/5 backdrop-blur-sm
+               bg-white/3 backdrop-blur-sm
                px-4 py-3
                transition-colors duration-200
                hover:bg-white/10;
@@ -259,11 +254,11 @@ nav {
     }
 
     .market-grid {
-      @apply grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6;
+      @apply grid grid-cols-2 lg:grid-cols-3 gap-6;
     }
 
     ul {
-      @apply space-y-4;
+      @apply space-y-4 ;
 
       li {
         @apply flex items-center gap-4
@@ -530,14 +525,14 @@ nav {
   /* ── Vault card ── */
   #vault-card {
     /* ── Vault info ── */
-    @apply flex flex-col gap-3 h-48 w-36 cursor-pointer;
+    @apply flex flex-col gap-3 h-48 max-w-48  cursor-pointer;
     .token{
-      @apply size-8 object-cover rounded-full;
+      @apply size-8 object-cover ;
     }
     
     
       h3 {
-        @apply font-nunito text-lg xl:text-xl text-green truncate mt-3;
+        @apply font-nunito text-lg xl:text-xl text-green truncate mt-1;
       }
       .curator {
         @apply text-xs text-white/50 mt-0.5;
@@ -548,7 +543,7 @@ nav {
     .vault-stats {
       @apply flex-col gap-4 w-full;
       .vault-network {
-        @apply size-5 rounded-full ;
+        @apply size-5 ;
       }
       .stat {
         @apply flex flex-row items-end ;
@@ -570,13 +565,12 @@ nav {
 
 
 #market-card {
-  @apply flex flex-row gap-3 md:col-span-1 h-28 cursor-pointer w-full ;
+  @apply flex flex-col lg:flex-row gap-3 h-48 lg:h-24 max-w-48  cursor-pointer ;
 
-  
 
   .market-info {
     h3 {
-      @apply font-nunito text-lg xl:text-xl text-green truncate mt-3;
+      @apply font-nunito text-lg xl:text-xl text-green truncate mt-1;
     }
 
       /* ── Coin pair ── */
@@ -587,7 +581,7 @@ nav {
       @apply flex items-center;
     }
     .coin-icon {
-      @apply w-12 h-12 rounded-full bg-white/10 object-contain;
+      @apply size-8 object-contain;
     }
     .coin-icon.overlap {
       @apply -ml-2 ring-1 ring-black/30;
@@ -606,7 +600,7 @@ nav {
     @apply flex flex-col gap-1 w-full;
 
     .stat {
-      @apply flex flex-row items-center gap-2 mt-1;
+      @apply flex flex-row items-center gap-2;
 
       .label {
         @apply text-xs uppercase tracking-wider text-white/40;
@@ -1112,7 +1106,7 @@ nav {
   }
   /* ── Footer ── */
   #footer {
-    @apply w-full py-10 bg-blue text-center text-sm text-gray-500;
+    @apply w-full py-10 text-center text-sm text-gray-500;
     h1 {
         @apply text-3xl font-schibsted-grotesk mb-5 text-green;
     }

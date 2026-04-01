@@ -31,8 +31,7 @@ const Navbar = () => {
 	<nav>
 	 <div>
 		<Link href="/" className="flex items-center gap-2">
-		 <img src="/images/logo.png" alt="logo" className='size-12'/>
-		 <p>Blackpools</p>
+		 <img src="/images/navbarlogo.png" alt="logo" className='h-16'/>
 		</Link>
 		
 		<ul className="list-none">
