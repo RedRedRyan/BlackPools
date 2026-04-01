@@ -6,7 +6,14 @@ import { ethereumSepolia } from '@/config'
 const tusdtAddress = process.env.NEXT_PUBLIC_SEPOLIA_PUBLIC_USDT_ADDRESS
 const contractAddress = tusdtAddress ? (tusdtAddress as `0x${string}`) : undefined
 
-function useGetEthSepoliaGetBalanceOfTUSDT(address?: `0x${string}`) {
+interface BalanceResult {
+  balance: bigint | undefined
+  isError: boolean
+  isLoading: boolean
+  contractAddress: `0x${string}` | undefined
+}
+
+function useGetEthSepoliaGetBalanceOfTUSDT(address?: `0x${string}`): BalanceResult {
   const { data, isError, isLoading } = useReadContract({
     address: contractAddress,
     abi: TUSDTAbi,
@@ -19,11 +26,11 @@ function useGetEthSepoliaGetBalanceOfTUSDT(address?: `0x${string}`) {
   })
 
   return {
-    balance: data,
+    balance: data as bigint | undefined,
     isError,
     isLoading,
     contractAddress,
   }
 }
- 
+
 export default useGetEthSepoliaGetBalanceOfTUSDT

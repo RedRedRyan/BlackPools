@@ -10,6 +10,9 @@
     "deploy:arb-sepolia": "hardhat run tasks/deploy-vault.ts --network arbitrumSepolia",
     "demo:localhost": "hardhat run tasks/demo-vault.ts --network localhost",
     "demo:arb-sepolia": "hardhat run tasks/demo-vault.ts --network arbitrumSepolia",
+    "deploy:eth": "hardhat deploy:eth",
+    "deploy:arb": "hardhat deploy:arb",
+    "deploy:base": "hardhat deploy:base",
     "arb-sepolia:deploy-vault": "hardhat run tasks/deploy-vault.ts --network arbitrumSepolia",
     "arb-sepolia:demo-vault": "hardhat run tasks/demo-vault.ts --network arbitrumSepolia"
   },
