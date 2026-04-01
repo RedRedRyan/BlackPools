@@ -39,8 +39,8 @@ function NetworkSelect({ selected, onChange }: {
   return (
     <div className="network-select" style={{ position: 'relative' }}>
       <button className="network-trigger" onClick={() => setOpen(o => !o)}>
-        <span className="net-dot" style={{ background: current.color }} />
-        <span>{current.label}</span>
+        {/* <span className="net-dot" style={{ background: current.color }} />
+        <span>{current.label}</span> */}
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
           style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .2s' }}>
           <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -98,7 +98,7 @@ const Page = () => {
   const { balance: tokenBalance, isLoading, isError } = useGetEthSepoliaGetBalanceOfTUSDT(
     address as `0x${string}` | undefined
   )
-  const [selectedNetwork, setSelectedNetwork] = useState('ethereum')
+  const [selectedNetwork, setSelectedNetwork] = useState('ethert eum')
 
   const formattedBalance = typeof tokenBalance == 'bigint'
     ? Number(formatUnits(tokenBalance, 6)).toLocaleString('en-US', { minimumFractionDigits: 2 })
@@ -110,8 +110,8 @@ const Page = () => {
       ? 'Loading…'
       : isError
         ? 'Error'
-        : `$${formattedBalance ?? '0.00'}`
-
+        : `$${formattedBalance}`
+      
   const shortAddress = address
     ? `${address.slice(0, 6)}…${address.slice(-4)}`
     : 'Not connected'
@@ -148,7 +148,7 @@ const Page = () => {
           <div className="db-stat-footer">
             <span className="db-stat-sub">TUSDT · Sepolia</span>
             {chainId && chainId !== ethereumSepolia.id && (
-              <span className="db-warn">⚠ Wrong network</span>
+              <span className="db-warn"> Wrong network</span>
             )}
           </div>
           <div className="db-card-glow" />
