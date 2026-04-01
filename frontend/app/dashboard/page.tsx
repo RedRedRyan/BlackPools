@@ -120,10 +120,10 @@ const Page = () => {
     address as `0x${string}` | undefined
   )
   const [selectedNetwork, setSelectedNetwork] = useState('ethereum')
-
-  const formattedBalance = tokenBalance !== undefined && tokenBalance !== null
-    ? Number(formatUnits(tokenBalance, 6)).toLocaleString('en-US', { minimumFractionDigits: 2 })
-    : null
+  
+  const formattedBalance = typeof tokenBalance === 'bigint'
+  ? Number(formatUnits(tokenBalance, 6)).toLocaleString('en-US', { minimumFractionDigits: 2 })
+  : null
 
   const walletDisplay = !isConnected
     ? '—'
