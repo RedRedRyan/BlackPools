@@ -118,7 +118,7 @@ nav {
         @apply md:mt-32 mt-40 text-6xl md:text-[14vw] leading-none text-center font-schibsted-grotesk;
     }
     .hero-wallet {
-        @apply absolute right-0 xl:top-0 2xl:top-12 top-1/2  md:bottom-auto -translate-y-1/2 md:translate-y-0 md:w-fit -z-10;
+        @apply z-10 absolute right-0 xl:top-0 2xl:top-12 top-1/2  md:bottom-auto -translate-y-1/2 md:translate-y-0 md:w-fit ;
     }
 
     .body {
