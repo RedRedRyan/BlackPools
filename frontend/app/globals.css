@@ -115,10 +115,10 @@ nav {
     @apply min-h-dvh w-full px-5 sm:px-10 pt-28 pb-20 container mx-auto;
 
     h1 {
-        @apply md:mt-32 mt-40 text-6xl md:text-[14vw] leading-none text-center font-schibsted-grotesk;
+        @apply md:mt-32 mt-40 text-6xl md:text-[14vw] leading-none text-center font-schibsted-grotesk z-6;
     }
     .hero-wallet {
-        @apply z-10 absolute right-0 xl:top-0 2xl:top-12 top-1/2  md:bottom-auto -translate-y-1/2 md:translate-y-0 md:w-fit ;
+        @apply z-5 absolute right-0 xl:top-0 2xl:top-12 top-1/2  md:bottom-auto -translate-y-1/2 md:translate-y-0 md:w-fit ;
     }
 
     .body {
